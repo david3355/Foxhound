@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    android:id="@+id/floating_copy_widget"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <!--Root container-->
+    <RelativeLayout
+        android:id="@+id/root_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="UselessParent">
+
+        <!--View while view is collapsed-->
+        <RelativeLayout
+            android:id="@+id/collapse_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible"
+            >
+
+
+
+            <!--Icon of floating widget -->
+            <ImageView
+                android:id="@+id/floating_pricetracker_widget"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/foxhound_icon"
+                android:padding="1dp"
+                android:background="@drawable/floating_widget_background"
+                tools:ignore="ContentDescription"/>
+
+            <!--Close button-->
+            <ImageView
+                android:id="@+id/floating_close_btn"
+                android:layout_width="21dp"
+                android:layout_height="21dp"
+                android:layout_marginStart="40dp"
+                android:src="@drawable/close"
+                android:padding="2dp"
+                android:background="@drawable/floating_widget_background"
+                tools:ignore="ContentDescription"/>
+        </RelativeLayout>
+
+        <!--View while view is expanded-->
+        <LinearLayout
+            android:id="@+id/expanded_property_copier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:orientation="vertical"
+            android:padding="8dp"
+            >
+
+            <!--Back button-->
+            <ImageView
+                android:id="@+id/floating_back_btn"
+                android:layout_width="21dp"
+                android:layout_height="21dp"
+                android:layout_gravity="end"
+                android:src="@drawable/back"
+                android:padding="2dp"
+                android:background="@drawable/floating_widget_background"
+                tools:ignore="ContentDescription"/>
+            
+            <LinearLayout
+                android:id="@+id/floatingmenu_get_name"
+                android:layout_width="170dp"
+                android:layout_height="35dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/menu_default"
+                android:layout_marginBottom="5dp"
+                >
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/name"
+                    android:padding="5dp"
+                    android:layout_marginLeft="7dp"
+                    tools:ignore="ContentDescription"/>
+
+            <TextView
+                android:id="@+id/floating_copy_product_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Copy product name"
+                android:maxLines="1"
+                />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/floatingmenu_get_url"
+                android:layout_width="170dp"
+                android:layout_height="35dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/menu_default"
+                android:layout_marginBottom="5dp"
+                >
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/url"
+                    android:padding="5dp"
+                    android:layout_marginLeft="7dp"
+                    tools:ignore="ContentDescription"/>
+
+                <TextView
+                    android:id="@+id/floating_copy_product_url"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Copy product URL"
+                    android:maxLines="1"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/floatingmenu_get_price"
+                android:layout_width="170dp"
+                android:layout_height="35dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/menu_default"
+                android:layout_marginBottom="5dp"
+                >
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/dollar_small"
+                    android:padding="5dp"
+                    android:layout_marginLeft="7dp"
+                    tools:ignore="ContentDescription"/>
+
+                <TextView
+                    android:id="@+id/floating_copy_product_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Copy product price"
+                    android:maxLines="1"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/floatingmenu_go_to_app"
+                android:layout_width="170dp"
+                android:layout_height="35dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/menu_default"
+                >
+                <ImageView
+                    android:layout_width="30dp"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/foxhound_icon"
+                    android:padding="5dp"
+                    android:layout_marginLeft="7dp"
+                    tools:ignore="ContentDescription"/>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="Go back to app"
+                    />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+</FrameLayout>

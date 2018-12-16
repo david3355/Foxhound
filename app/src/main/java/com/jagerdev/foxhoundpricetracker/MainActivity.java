@@ -1,0 +1,324 @@
+package com.jagerdev.foxhoundpricetracker;
+
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.Toast;
+
+import com.jagerdev.foxhoundpricetracker.products.ProductAdapter;
+import com.jagerdev.foxhoundpricetracker.products.ProductComparator;
+import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
+import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
+import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
+
+import java.util.Map;
+
+import controllers.validators.OnInvalidInput;
+import database.DatabaseException;
+import model.Product;
+import tracker.PriceTrackerService;
+import tracker.clientnotifier.PriceTrackEvent;
+
+public class MainActivity extends AppCompatActivity
+        implements OnInvalidInput, PriceTrackEvent, AdapterView.OnItemLongClickListener,
+        AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener
+{
+       private ListView list_products;
+       private PriceTrackerService priceTrackerService;
+       private ProductAdapter adapter;
+       private ServiceRunHandler svcRunHandler;
+
+       private SwipeRefreshLayout product_swipe_refresh;
+       private SearchView search_bar_products;
+       private boolean trackerSvcBound = false;
+
+       private ServiceConnection trackerSvcConnection = new ServiceConnection()
+       {
+              @Override
+              public void onServiceConnected(ComponentName componentName, IBinder iBinder)
+              {
+                     TrackerService.TrackerServiceBinder binder = (TrackerService.TrackerServiceBinder) iBinder;
+                     TrackerService trackerSvc = binder.getService();
+                     trackerSvcBound = true;
+                     svcRunHandler.registerService(trackerSvc);
+//                     svcRunHandler.uiActivated();
+//                     trackerSvc.background();
+              }
+
+              @Override
+              public void onServiceDisconnected(ComponentName componentName)
+              {
+                     trackerSvcBound = false;
+              }
+       };
+
+       @Override
+       protected void onCreate(Bundle savedInstanceState)
+       {
+              super.onCreate(savedInstanceState);
+              setContentView(R.layout.activity_main);
+              Toolbar toolbar = findViewById(R.id.toolbar);
+              svcRunHandler = ServiceRunHandler.getInstance();
+
+              search_bar_products = findViewById(R.id.search_bar_products);
+              product_swipe_refresh = findViewById(R.id.product_swipe_refresh);
+              product_swipe_refresh.setOnRefreshListener(this);
+              setSupportActionBar(toolbar);
+
+              FloatingActionButton fab = findViewById(R.id.fab);
+              fab.setOnClickListener(new View.OnClickListener()
+              {
+                     @Override
+                     public void onClick(View view)
+                     {
+                            Intent newProductActivity = new Intent(MainActivity.this, NewProductActivity.class);
+                            startActivity(newProductActivity);
+//                            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                                    .setAction("Action", null).show();
+                     }
+              });
+
+              list_products = findViewById(R.id.list_products);
+              list_products.setOnItemLongClickListener(this);
+              list_products.setOnItemClickListener(this);
+
+              TrackerInitializer.initialize(this);
+
+              adapter = new ProductAdapter(this);
+
+              try
+              {
+                     priceTrackerService = PriceTrackerService.getInstance();
+              } catch (DatabaseException e)
+              {
+                     e.printStackTrace();
+              }
+
+              list_products.setAdapter(adapter);
+
+//              ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET},1);
+
+//              if (!AndroidUtil.isServiceRunning(this, TrackerService.class)) startTrackerService();
+       }
+
+       @Override
+       protected void onStart()
+       {
+              super.onStart();
+              TrackerService.forceStopped = false;
+              startTrackerService();
+       }
+
+       @Override
+       protected void onResume()
+       {
+              svcRunHandler.uiActivated(this.getClass().getName());
+              if (adapter != null && priceTrackerService != null)
+              {
+                     setItemsToList();
+                     priceTrackerService.addEventListener(this);
+                     adapter.notifyDataSetChanged();
+              }
+              super.onResume();
+       }
+
+       @Override
+       protected void onPause()
+       {
+              if (priceTrackerService != null)
+              {
+                     priceTrackerService.removeEventListener(this);
+              }
+              super.onPause();
+       }
+
+       @Override
+       protected void onStop()
+       {
+              super.onStop();
+              svcRunHandler.uiDeactivated(this.getClass().getName());
+              if (trackerSvcBound)
+              {
+//                     svcRunHandler.uiDeactivated();
+//                     trackerSvc.foreground();
+                     unbindService(trackerSvcConnection);
+                     trackerSvcBound = false;
+              }
+       }
+
+       private void setItemsToList()
+       {
+              final Map<String, Product> products = priceTrackerService.getAllProducts();
+              runOnUiThread(new Runnable()
+              {
+                     @Override
+                     public void run()
+                     {
+                            adapter.clear();
+                            adapter.addAll(products.values());
+                            adapter.sort(new ProductComparator());
+                     }
+              });
+       }
+
+       private void startTrackerService()
+       {
+              Intent svc = new Intent(this, TrackerService.class);
+              if (!AndroidUtil.isServiceRunning(this, TrackerService.class))
+              {
+                     startService(svc);
+                     Toast.makeText(this, "Tracking service is started.", Toast.LENGTH_SHORT).show();
+              }
+              bindService(svc, trackerSvcConnection, 0);
+       }
+
+       private void stopTrackerService()
+       {
+              TrackerService.forceStopped = true;
+              Intent svc = new Intent(this, TrackerService.class);
+              stopService(svc);
+              Toast.makeText(this, "Tracking service is stopped.", Toast.LENGTH_SHORT).show();
+       }
+
+       private void forceRefreshAllProducts()
+       {
+              Thread refresher = new Thread(new Runnable()
+              {
+                     @Override
+                     public void run()
+                     {
+                            for (Product product : priceTrackerService.getAllProducts().values())
+                            {
+                                   try
+                                   {
+                                          priceTrackerService.forceProductPriceCheck(product.getId());
+
+                                   } catch (DatabaseException e)
+                                   {
+                                   }
+                            }
+                            AndroidUtil.toastOnThread(MainActivity.this, "All products have been refreshed");
+                            runOnUiThread(new Runnable()
+                            {
+                                   @Override
+                                   public void run()
+                                   {
+                                          product_swipe_refresh.setRefreshing(false);
+                                   }
+                            });
+                     }
+              });
+              refresher.start();
+       }
+
+       @Override
+       public boolean onCreateOptionsMenu(Menu menu)
+       {
+              // Inflate the menu; this adds items to the action bar if it is present.
+              getMenuInflater().inflate(R.menu.menu_main, menu);
+              return true;
+       }
+
+       @Override
+       public boolean onOptionsItemSelected(MenuItem item)
+       {
+              // Handle action bar item clicks here. The action bar will
+              // automatically handle clicks on the Home/Up button, so long
+              // as you specify a parent activity in AndroidManifest.xml.
+              int id = item.getItemId();
+
+              //noinspection SimplifiableIfStatement
+              switch (id)
+              {
+                     case R.id.action_settings:
+                            Intent settingsIntent = new Intent(this, GlobalSettingsActivity.class);
+                            startActivity(settingsIntent);
+                            return true;
+                     case R.id.stop_tracking_prices:
+                            stopTrackerService();
+                            return true;
+                     case R.id.search_bar_products:
+                            search_bar_products.setVisibility(View.VISIBLE);
+                            break;
+              }
+
+              return super.onOptionsItemSelected(item);
+       }
+
+       @Override
+       public void invalidInput(Object o, String s)
+       {
+              Toast.makeText(this, String.format("INVALID INPUT for %s. Details: %s", o.toString(), s), Toast.LENGTH_LONG).show();
+       }
+
+       @Override
+       public void priceChanges(final String oldPrice, final String newPrice, final Product product)
+       {
+              runOnUiThread(new Runnable()
+              {
+                     @Override
+                     public void run()
+                     {
+                            adapter.notifyDataSetChanged();
+                            Toast.makeText(MainActivity.this, String.format("%s: price changed from %s to %s", product.getName(), oldPrice, newPrice), Toast.LENGTH_SHORT).show();
+                     }
+              });
+       }
+
+       @Override
+       public void availabilityChanges(final boolean available, final Product product)
+       {
+              runOnUiThread(new Runnable()
+              {
+                     @Override
+                     public void run()
+                     {
+                            adapter.notifyDataSetChanged();
+                            Toast.makeText(MainActivity.this, String.format("%s became %s", product.getName(), available ? "available" : "not available"), Toast.LENGTH_SHORT).show();
+                     }
+              });
+       }
+
+       @Override
+       public void productChecked(final Product product)
+       {
+
+       }
+
+       @Override
+       public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l)
+       {
+              Product product = (Product) adapterView.getItemAtPosition(i);
+              Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(product.getWebPath()));
+              startActivity(browserIntent);
+              return true;
+       }
+
+       @Override
+       public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
+       {
+              Product product = (Product) adapterView.getItemAtPosition(i);
+              Intent editProductActivity = new Intent(this, ProductInfoActivity.class);
+              editProductActivity.putExtra("product_id", product.getId());
+              startActivity(editProductActivity);
+       }
+
+       @Override
+       public void onRefresh()
+       {
+              forceRefreshAllProducts();
+       }
+}

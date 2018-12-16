@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".NewProductActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/new_product_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:titleTextColor="@color/colorWhite"
+            />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="30dp">
+
+            <TextView
+                android:id="@+id/txt_product_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Product name:"/>
+
+            <EditText
+                android:id="@+id/new_product_name"
+                style="@style/CustomEditTextTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/colorSpringGreen"
+                android:textCursorDrawable="@drawable/cursor"/>
+
+            <TextView
+                android:id="@+id/txt_product_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Product web path:"/>
+
+            <EditText
+                android:id="@+id/new_product_path"
+                style="@style/CustomEditTextTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/colorSpringGreen"
+                android:textCursorDrawable="@drawable/cursor"
+                android:textSize="12sp"/>
+
+            <TextView
+                android:id="@+id/txt_product_price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Known price of product:"/>
+
+            <EditText
+                android:id="@+id/new_product_price"
+                style="@style/CustomEditTextTheme"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:backgroundTint="@color/colorSpringGreen"
+                android:textCursorDrawable="@drawable/cursor"
+                android:textSize="25sp"/>
+
+            <TextView
+                android:id="@+id/txt_product_inspect_freq"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Product inspection frequency:"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/new_product_inspect_freq"
+                    style="@style/CustomEditTextTheme"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:backgroundTint="@color/colorSpringGreen"
+                    android:textCursorDrawable="@drawable/cursor"/>
+
+                <Spinner
+                    android:id="@+id/new_product_inspect_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                </Spinner>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btn_track_product"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/button_default"
+                    android:fontFamily="sans-serif-smallcaps"
+                    android:scaleType="fitCenter"
+                    android:text="Start tracking"
+                    android:textAllCaps="false"
+                    />
+
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

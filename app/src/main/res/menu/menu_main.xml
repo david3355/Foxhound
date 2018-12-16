@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context="com.jagerdev.foxhoundpricetracker.MainActivity">
+    <item
+        android:id="@+id/app_bar_search"
+        android:icon="@drawable/search"
+        android:title="Search"
+        app:showAsAction="always"
+        app:actionViewClass="android.widget.SearchView"/>
+    <item
+        android:id="@+id/stop_tracking_prices"
+        android:orderInCategory="100"
+        android:title="@string/stop_service"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:icon="@drawable/settings"
+        android:title="@string/action_settings"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/menu_refresh_products"
+        android:title="Refresh all products"
+        android:icon="@drawable/refresh"
+        app:showAsAction="ifRoom"/>
+</menu>
