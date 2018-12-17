@@ -2,6 +2,7 @@ package com.jagerdev.foxhoundpricetracker;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -324,6 +325,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             {
                                    case DialogInterface.BUTTON_POSITIVE:
                                           removeProduct();
+                                          Intent main = new Intent(ProductInfoActivity.this, MainActivity.class);
+                                          main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                          startActivity(main);
                                           break;
 
                                    case DialogInterface.BUTTON_NEGATIVE:
