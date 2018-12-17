@@ -89,7 +89,8 @@
                 android:id="@+id/floating_copy_product_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Copy product name"
+                android:textSize="13sp"
+                android:text="Paste product name"
                 android:maxLines="1"
                 />
             </LinearLayout>
@@ -115,7 +116,8 @@
                     android:id="@+id/floating_copy_product_url"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Copy product URL"
+                    android:textSize="13sp"
+                    android:text="Paste product URL"
                     android:maxLines="1"
                     />
             </LinearLayout>
@@ -141,7 +143,8 @@
                     android:id="@+id/floating_copy_product_price"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Copy product price"
+                    android:textSize="13sp"
+                    android:text="Paste product price"
                     android:maxLines="1"
                     />
             </LinearLayout>
@@ -166,7 +169,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
-                    android:text="Go back to app"
+                    android:text="Go to register"
                     />
             </LinearLayout>
 
