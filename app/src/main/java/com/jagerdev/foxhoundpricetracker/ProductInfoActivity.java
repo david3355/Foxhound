@@ -300,8 +300,17 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        private void saveProduct()
        {
-              // TODO save only data, but do not retrack product
-              Toast.makeText(this, "Save is not implemented yet. Use retrack instead", Toast.LENGTH_LONG).show();
+              String productName = edit_product_name.getText().toString();
+              String inspectFreq = edit_product_inspect_freq.getText().toString();
+              String ifUnit = Frequency.UNITS[edit_product_inspect_unit.getSelectedItemPosition()];
+              try
+              {
+                     priceTrackerManager.saveProduct(respectiveProduct.getId(), productName, inspectFreq, ifUnit);
+                     showInfo(String.format("Product saved: %s", productName));
+              } catch (DatabaseException e)
+              {
+                     showInfo(e.getMessage());
+              }
        }
 
        private void removeDialog()
