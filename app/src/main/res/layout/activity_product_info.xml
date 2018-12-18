@@ -129,14 +129,36 @@
             android:layout_height="wrap_content"
             android:text="Product web path:"/>
 
-        <EditText
-            android:id="@+id/edit_product_path"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="12sp"
-            android:layout_marginBottom="25dp"
-            android:backgroundTint="@color/colorSpringGreen"
-            />
+            android:orientation="vertical"
+            android:layout_marginBottom="25dp">
+
+            <TextView
+                android:id="@+id/txt_product_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight=".8"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:linksClickable="true"
+                android:autoLink="web"
+                android:textColorLink="@color/colorPrimaryDark"
+                android:textColor="@color/colorPrimaryDark"
+                />
+
+            <EditText
+                android:id="@+id/edit_product_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:backgroundTint="@color/colorSpringGreen"
+                android:visibility="gone"
+                />
+
+        </LinearLayout>
+
 
         <TextView
             android:id="@+id/txt_product_price"

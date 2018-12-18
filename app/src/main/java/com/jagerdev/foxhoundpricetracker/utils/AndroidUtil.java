@@ -5,6 +5,8 @@ import android.app.ActivityManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -51,5 +53,11 @@ public class AndroidUtil
                      }
               }
               return "";
+       }
+
+       public static void openInDefaultBrowser(Context context, String url)
+       {
+              Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+              context.startActivity(browserIntent);
        }
 }

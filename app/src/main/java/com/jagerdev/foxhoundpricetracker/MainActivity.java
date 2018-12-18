@@ -3,7 +3,6 @@ package com.jagerdev.foxhoundpricetracker;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -302,8 +301,7 @@ public class MainActivity extends AppCompatActivity
        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l)
        {
               Product product = (Product) adapterView.getItemAtPosition(i);
-              Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(product.getWebPath()));
-              startActivity(browserIntent);
+              AndroidUtil.openInDefaultBrowser(this, product.getWebPath());
               return true;
        }
 

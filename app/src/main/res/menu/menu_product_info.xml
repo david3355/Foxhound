@@ -8,6 +8,12 @@
         android:title="Remove product"/>
 
     <item
+        android:id="@+id/menu_open_link"
+        android:title="Refresh all products"
+        android:icon="@drawable/open_link"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/menu_refresh_product"
         android:title="Refresh all products"
         android:icon="@drawable/refresh"

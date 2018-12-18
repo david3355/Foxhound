@@ -50,6 +50,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private Product respectiveProduct;
 
        private EditText edit_product_name, edit_product_path, edit_product_inspect_freq;
+       private TextView txt_product_url;
        private TextView txt_last_check, txt_product_status, txt_record_datetime, txt_alarm_count;
        private Spinner edit_product_inspect_unit;
        private TextView txt_product_name;
@@ -119,6 +120,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               txt_product_name = findViewById(R.id.txt_product_name);
               edit_product_price = findViewById(R.id.edit_product_price);
               txt_product_actual_price = findViewById(R.id.txt_product_actual_price);
+              txt_product_url = findViewById(R.id.txt_product_url);
               panel_actual_price = findViewById(R.id.panel_actual_price);
               btn_ack_alarms = findViewById(R.id.btn_ack_alarms);
               btn_retrack_product = findViewById(R.id.btn_retrack_product);
@@ -147,6 +149,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               Frequency frequency = convertInspectFrequency(respectiveProduct.getInspectFrequency());
               edit_product_name.setText(respectiveProduct.getName());
               edit_product_path.setText(respectiveProduct.getWebPath());
+              txt_product_url.setText(respectiveProduct.getWebPath());
               edit_product_price.setText(respectiveProduct.getActualPrice());
               txt_product_actual_price.setText(respectiveProduct.getActualPrice());
               edit_product_inspect_freq.setText(String.valueOf(frequency.frequency));
@@ -187,6 +190,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      public void run()
                      {
                             txt_product_actual_price.setText(newPrice);
+                            edit_product_price.setText(newPrice);
                      }
               });
        }
@@ -292,11 +296,21 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               });
        }
 
-       private void changeEditPrice()
+       private void changeEditProductKeyProperties()
        {
               panel_actual_price.setVisibility(View.GONE);
+              txt_product_url.setVisibility(View.GONE);
+              edit_product_path.setVisibility(View.VISIBLE);
               edit_product_price.setVisibility(View.VISIBLE);
               edit_product_price.requestFocus();
+       }
+
+       private void consolidateProductKeyProperties()
+       {
+              edit_product_path.setVisibility(View.GONE);
+              edit_product_price.setVisibility(View.GONE);
+              panel_actual_price.setVisibility(View.VISIBLE);
+              txt_product_url.setVisibility(View.VISIBLE);
        }
 
        private void saveProduct()
@@ -356,11 +370,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        private void removeProduct()
        {
-              // TODO popup
               String productId = respectiveProduct.getId();
               priceTrackerService.deleteProduct(productId);
               Toast.makeText(this, "Product removed.", Toast.LENGTH_SHORT).show();
-              // TODO redirect to list
        }
 
        private void retrackProduct()
@@ -381,6 +393,16 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             {
                                    priceTrackerManager.updateProduct(productId, newPrice, productUrl, productName, inspectFreq, ifUnit);
                                    showInfo(String.format("Product updated: %s", productName));
+                                   runOnUiThread(new Runnable()
+                                   {
+                                          @Override
+                                          public void run()
+                                          {
+                                                 txt_product_url.setText(productUrl);
+                                                 txt_product_actual_price.setText(newPrice);
+                                                 consolidateProductKeyProperties();
+                                          }
+                                   });
                             } catch (ImproperPathSelectorException e)
                             {
                                    showInfo(e.getMessage());
@@ -464,6 +486,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      case R.id.menu_refresh_product:
                             forceRefreshProduct();
                             break;
+                     case R.id.menu_open_link:
+                            AndroidUtil.openInDefaultBrowser(this, respectiveProduct.getWebPath());
+                            break;
               }
 
               return super.onOptionsItemSelected(item);
@@ -475,7 +500,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               switch (view.getId())
               {
                      case R.id.btn_edit_price:
-                            changeEditPrice();
+                            changeEditProductKeyProperties();
                             break;
                      case R.id.btn_retrack_product:
                             retrackProduct();
