@@ -3,9 +3,11 @@
       xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/item_remove_product"
-        android:icon="@drawable/remove"
-        android:title="Remove product"/>
+        android:id="@+id/item_share_product"
+        android:icon="@drawable/share"
+        android:title="Share product"
+        app:showAsAction="always"
+        />
 
     <item
         android:id="@+id/menu_open_link"
@@ -25,4 +27,10 @@
         android:title="Save product"
         app:showAsAction="always"
         />
+
+    <item
+        android:id="@+id/item_remove_product"
+        android:icon="@drawable/remove"
+        android:title="Remove product"/>
+
 </menu>

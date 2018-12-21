@@ -468,6 +468,17 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_ack_alarms.setVisibility(visibility);
        }
 
+       private void shareProduct()
+       {
+              Intent share = new Intent(Intent.ACTION_SEND);
+              share.setType("text/plain");
+              String shareBody = respectiveProduct.getWebPath();
+              String shareSubject = respectiveProduct.getName();
+              share.putExtra(Intent.EXTRA_SUBJECT, shareSubject);
+              share.putExtra(Intent.EXTRA_TEXT, shareBody);
+              startActivity(Intent.createChooser(share, "Share product via"));
+       }
+
        @Override
        public boolean onCreateOptionsMenu(Menu menu)
        {
@@ -496,6 +507,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             break;
                      case R.id.menu_open_link:
                             AndroidUtil.openInDefaultBrowser(this, respectiveProduct.getWebPath());
+                            break;
+                     case R.id.item_share_product:
+                            shareProduct();
                             break;
               }
 
