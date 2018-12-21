@@ -55,6 +55,16 @@ public class AndroidUtil
               return "";
        }
 
+       public static void setClipboardText(Context context, String text)
+       {
+              ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+              if (clipboard != null)
+              {
+                     ClipData data = ClipData.newPlainText("PriceTracker", text);
+                     clipboard.setPrimaryClip(data);
+              }
+       }
+
        public static void openInDefaultBrowser(Context context, String url)
        {
               Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));

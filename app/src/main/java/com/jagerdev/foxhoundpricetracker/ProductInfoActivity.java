@@ -50,10 +50,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private Product respectiveProduct;
 
        private EditText edit_product_name, edit_product_path, edit_product_inspect_freq;
-       private TextView txt_product_url;
+       private TextView txt_product_url, label_product_path, label_product_price, label_product_name;
        private TextView txt_last_check, txt_product_status, txt_record_datetime, txt_alarm_count;
        private Spinner edit_product_inspect_unit;
-       private TextView txt_product_name;
        private EditText edit_product_price;
        private TextView txt_product_actual_price;
        private LinearLayout panel_actual_price;
@@ -113,14 +112,17 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               edit_product_path = findViewById(R.id.edit_product_path);
               edit_product_inspect_freq = findViewById(R.id.edit_product_inspect_freq);
 
+              label_product_name = findViewById(R.id.label_product_name);
+              label_product_path = findViewById(R.id.label_product_path);
+              label_product_price = findViewById(R.id.label_product_price);
+
+              txt_product_url = findViewById(R.id.txt_product_url);
               txt_alarm_count = findViewById(R.id.txt_alarm_count);
               txt_last_check = findViewById(R.id.txt_last_check);
               txt_product_status = findViewById(R.id.txt_product_status);
               txt_record_datetime = findViewById(R.id.txt_record_datetime);
-              txt_product_name = findViewById(R.id.txt_product_name);
               edit_product_price = findViewById(R.id.edit_product_price);
               txt_product_actual_price = findViewById(R.id.txt_product_actual_price);
-              txt_product_url = findViewById(R.id.txt_product_url);
               panel_actual_price = findViewById(R.id.panel_actual_price);
               btn_ack_alarms = findViewById(R.id.btn_ack_alarms);
               btn_retrack_product = findViewById(R.id.btn_retrack_product);
@@ -130,6 +132,12 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_retrack_product.setOnClickListener(this);
               btn_edit_price.setOnClickListener(this);
               edit_product_inspect_unit = findViewById(R.id.edit_product_inspect_unit);
+
+              txt_product_url.setOnClickListener(this);
+              label_product_path.setOnClickListener(this);
+              label_product_price.setOnClickListener(this);
+              label_product_name.setOnClickListener(this);
+
 
               try
               {
@@ -167,7 +175,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               edit_product_inspect_unit.setSelection(frequency.getIndex());
 
               list_history = findViewById(R.id.list_history);
-              txt_product_name.requestFocus();
+              edit_product_name.requestFocus();
        }
 
        public View createViewForListItem(ViewGroup parent, ProductSnapshot product)
@@ -508,7 +516,24 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      case R.id.btn_ack_alarms:
                             acknowledgeAlarms();
                             break;
+                     case R.id.label_product_name:
+                            AndroidUtil.setClipboardText(this, respectiveProduct.getName());
+                            showClipboardCopyMsg(respectiveProduct.getName());
+                            break;
+                     case R.id.label_product_path:
+                            AndroidUtil.setClipboardText(this, respectiveProduct.getWebPath());
+                            showClipboardCopyMsg(respectiveProduct.getWebPath());
+                            break;
+                     case R.id.label_product_price:
+                            AndroidUtil.setClipboardText(this, respectiveProduct.getActualPrice());
+                            showClipboardCopyMsg(respectiveProduct.getActualPrice());
+                            break;
               }
+       }
+
+       private void showClipboardCopyMsg(String content)
+       {
+              Toast.makeText(this, "Copied to clipboard: " + content, Toast.LENGTH_SHORT).show();
        }
 
        @Override
