@@ -5,7 +5,7 @@
     <item
         android:id="@+id/item_copy_productinfo"
         android:icon="@drawable/copy"
-        android:title="Copy product info"
+        android:title="Paste product info"
         app:showAsAction="always"
         />
 

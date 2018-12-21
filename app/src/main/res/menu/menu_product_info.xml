@@ -9,13 +9,13 @@
 
     <item
         android:id="@+id/menu_open_link"
-        android:title="Refresh all products"
+        android:title="Check product in browser"
         android:icon="@drawable/open_link"
         app:showAsAction="always"/>
 
     <item
         android:id="@+id/menu_refresh_product"
-        android:title="Refresh all products"
+        android:title="Refresh product"
         android:icon="@drawable/refresh"
         app:showAsAction="always"/>
 
