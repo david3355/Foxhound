@@ -57,7 +57,8 @@ public class NotificationHelper
 
               Notification notif = notifBuilder.build();
               notif.flags |= Notification.FLAG_AUTO_CANCEL;
-              notificationManager.notify(1, notif);
+
+              notificationManager.notify(productId.hashCode(), notif);
        }
 
        public Notification createForegroundServiceNotification(Context context, String notificationTitle, String notificationText)
