@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
        private EditText new_product_price;
        private EditText new_product_inspect_freq;
        private Spinner new_product_inspect_unit;
+       private ProgressBar progress_new_product;
 
        public final static String COPY_NAME = "copy_name";
        public final static String COPY_URL = "copy_url";
@@ -59,6 +61,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               new_product_price = findViewById(R.id.new_product_price);
               new_product_inspect_freq = findViewById(R.id.new_product_inspect_freq);
               new_product_inspect_unit = findViewById(R.id.new_product_inspect_unit);
+              progress_new_product = findViewById(R.id.progress_new_product);
 
               String name = getIntent().getStringExtra(COPY_NAME);
               String url = getIntent().getStringExtra(COPY_URL);
@@ -190,6 +193,9 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                             {
                                    priceTrackerManager.trackNewItem(productPrice, productWebPath, productName, productInspectFreq, productIFUnit);
                                    showInfo(String.format("%s is added to tracked items: %s", productName, productPrice));
+                                   Intent main = new Intent(NewProductActivity.this, MainActivity.class);
+                                   main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                   startActivity(main);
                             } catch (ImproperPathSelectorException e)
                             {
                                    showInfo(e.getMessage());
@@ -207,9 +213,21 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                                    showInfo(e.getMessage());
                                    e.printStackTrace();
                             }
+                            finally
+                            {
+                                   runOnUiThread(new Runnable()
+                                   {
+                                          @Override
+                                          public void run()
+                                          {
+                                                 progress_new_product.setVisibility(View.VISIBLE);
+                                          }
+                                   });
+                            }
                      }
               });
 
+              progress_new_product.setVisibility(View.VISIBLE);
               t.start();
        }
 

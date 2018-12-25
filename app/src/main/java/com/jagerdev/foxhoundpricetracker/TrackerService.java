@@ -9,7 +9,6 @@ import android.util.Log;
 import com.jagerdev.foxhoundpricetracker.utils.NotificationHelper;
 import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
 
-import database.DatabaseException;
 import model.Product;
 import tracker.PriceTrackerService;
 import tracker.clientnotifier.PriceTrackEvent;
@@ -33,6 +32,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        private final IBinder serviceBinder = new TrackerServiceBinder();
 
        private static final int NOTIFICATION_ID = 10;
+       public static final String START_IN_FOREGROUND = "start_in_foreground";
 
        public class TrackerServiceBinder extends Binder
        {
@@ -57,7 +57,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
               running = true;
               if (intent != null)
               {
-                     boolean onSystemStartup = intent.getBooleanExtra("startup", false);
+                     boolean onSystemStartup = intent.getBooleanExtra(TrackerService.START_IN_FOREGROUND, false);
                      if (onSystemStartup) foreground();
               }
               return Service.START_STICKY;
@@ -128,8 +128,9 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
                      priceTrackerSvc.addEventListener(this);
                      priceTrackerSvc.start();
 
-              } catch (DatabaseException e)
+              } catch (Exception e)
               {
+                     logger.error("Cannot start PriceTracker service. Details: %s", e.getMessage());
                      e.printStackTrace();
               }
        }

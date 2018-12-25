@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +60,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private ImageButton btn_edit_price;
        private Button btn_retrack_product;
        private ImageButton btn_ack_alarms;
+       private ProgressBar progress_product_refresh;
 
        @Override
        protected void onResume()
@@ -127,6 +129,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_ack_alarms = findViewById(R.id.btn_ack_alarms);
               btn_retrack_product = findViewById(R.id.btn_retrack_product);
               btn_edit_price = findViewById(R.id.btn_edit_price);
+              progress_product_refresh = findViewById(R.id.progress_product_refresh);
 
               btn_ack_alarms.setOnClickListener(this);
               btn_retrack_product.setOnClickListener(this);
@@ -452,13 +455,21 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             try
                             {
                                    priceTrackerService.forceProductPriceCheck(respectiveProduct.getId());
-
+                                   runOnUiThread(new Runnable()
+                                   {
+                                          @Override
+                                          public void run()
+                                          {
+                                                 progress_product_refresh.setVisibility(View.GONE);
+                                          }
+                                   });
                             } catch (DatabaseException e)
                             {
                             }
                             AndroidUtil.toastOnThread(ProductInfoActivity.this, String.format("%s have been refreshed", respectiveProduct.getName()));
                      }
               });
+              progress_product_refresh.setVisibility(View.VISIBLE);
               refresher.start();
        }
 

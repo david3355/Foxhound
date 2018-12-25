@@ -18,7 +18,7 @@ public class StartupReceiver extends BroadcastReceiver
               if(Intent.ACTION_BOOT_COMPLETED.equals(action))
               {
                      Intent svcIntent = new Intent(context, TrackerService.class);
-                     svcIntent.putExtra("startup", true);
+                     svcIntent.putExtra(TrackerService.START_IN_FOREGROUND, true);
                      context.startService(svcIntent);
               }
        }
