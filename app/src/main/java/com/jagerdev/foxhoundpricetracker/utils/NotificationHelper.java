@@ -16,8 +16,8 @@ import com.jagerdev.foxhoundpricetracker.R;
 
 public class NotificationHelper
 {
-       final static String GROUP_KEY_PRICETRACKER = "price_tracker";
-       final static String CHANNEL_ID = "price_tracker_notifications";
+//       final static String GROUP_KEY_PRICETRACKER = "price_tracker";
+       private final static String CHANNEL_ID = "price_tracker_notifications";
 
        public NotificationHelper(Context context)
        {
@@ -42,7 +42,6 @@ public class NotificationHelper
                       .setContentTitle(notificationTitle)
                       .setContentText(notificationText)
                       .setStyle(new NotificationCompat.BigTextStyle())
-                      .setGroup(GROUP_KEY_PRICETRACKER)
                       .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE)
                       .setContentIntent(resultPendingIntent);
 
