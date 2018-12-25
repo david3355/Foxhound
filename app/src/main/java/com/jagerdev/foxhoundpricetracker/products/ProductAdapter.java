@@ -42,12 +42,11 @@ public class ProductAdapter extends ArrayAdapter<Product>
               if (p.getActiveAlarms() == 0) text_product_alarm.setBackgroundColor(Color.WHITE);
               else
               {
-                     text_product_alarm.setText(String.valueOf(p.getActiveAlarms()));
+                     //text_product_alarm.setText(String.valueOf(p.getActiveAlarms()));
                      text_product_alarm.setBackgroundColor(Color.rgb(255, 155, 0));
               }
 
               Linkify.addLinks(text_product_name, Linkify.WEB_URLS);
-              // TODO set texts, set background
               return view;
        }
 
