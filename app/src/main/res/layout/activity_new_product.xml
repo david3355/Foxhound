@@ -81,12 +81,22 @@
                 android:id="@+id/txt_product_inspect_freq"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
                 android:text="Product inspection frequency:"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/btn_time_plus"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="fitCenter"
+                    android:background="@null"
+                    android:src="@drawable/plus"/>
+
 
                 <EditText
                     android:id="@+id/new_product_inspect_freq"
@@ -96,6 +106,15 @@
                     android:layout_marginBottom="10dp"
                     android:backgroundTint="@color/colorSpringGreen"
                     android:textCursorDrawable="@drawable/cursor"/>
+
+                <ImageButton
+                    android:id="@+id/btn_time_minus"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:scaleType="fitCenter"
+                    android:background="@null"
+                    android:src="@drawable/minus"/>
+
 
                 <Spinner
                     android:id="@+id/new_product_inspect_unit"

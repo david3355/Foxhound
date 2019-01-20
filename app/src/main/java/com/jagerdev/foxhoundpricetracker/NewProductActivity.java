@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -37,6 +38,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
        private EditText new_product_inspect_freq;
        private Spinner new_product_inspect_unit;
        private ProgressBar progress_new_product;
+       private ImageButton btn_time_plus, btn_time_minus;
 
        public final static String COPY_NAME = "copy_name";
        public final static String COPY_URL = "copy_url";
@@ -62,6 +64,11 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               new_product_inspect_freq = findViewById(R.id.new_product_inspect_freq);
               new_product_inspect_unit = findViewById(R.id.new_product_inspect_unit);
               progress_new_product = findViewById(R.id.progress_new_product);
+              btn_time_plus = findViewById(R.id.btn_time_plus);
+              btn_time_minus = findViewById(R.id.btn_time_minus);
+
+              btn_time_plus.setOnClickListener(this);
+              btn_time_minus.setOnClickListener(this);
 
               String name = getIntent().getStringExtra(COPY_NAME);
               String url = getIntent().getStringExtra(COPY_URL);
@@ -108,8 +115,27 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                      case R.id.btn_track_product:
                             trackNewItem();
                             break;
+                     case R.id.btn_time_plus:
+                            updateTime(true);
+                            break;
+                     case R.id.btn_time_minus:
+                            updateTime(false);
+                            break;
               }
 
+       }
+
+       private void updateTime(boolean increase)
+       {
+              try
+              {
+                     int value = Integer.parseInt(new_product_inspect_freq.getText().toString());
+                     value = increase ? value + 1 : value - 1;
+                     new_product_inspect_freq.setText(value);
+              } catch (Exception e)
+              {
+
+              }
        }
 
        @Override
@@ -143,12 +169,14 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               //Check if the application has draw over other apps permission or not?
               //This permission is by default available for API<23. But for API > 23
               //you have to ask for the permission in runtime.
-              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this))
+              {
                      //If the draw over permission is not available open the settings screen to grant the permission.
                      Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                              Uri.parse("package:" + getPackageName()));
                      startActivityForResult(intent, CODE_DRAW_OVER_OTHER_APP_PERMISSION);
-              } else {
+              } else
+              {
                      initializeFloatingCopyView();
               }
        }
@@ -156,7 +184,8 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
        /**
         * Set and initialize the view elements.
         */
-       private void initializeFloatingCopyView() {
+       private void initializeFloatingCopyView()
+       {
               startService(new Intent(this, FloatingCopyService.class));
 //              finish();
        }
@@ -212,8 +241,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                             {
                                    showInfo(e.getMessage());
                                    e.printStackTrace();
-                            }
-                            finally
+                            } finally
                             {
                                    runOnUiThread(new Runnable()
                                    {
