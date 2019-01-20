@@ -207,7 +207,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        }
 
        @Override
-       public void availabilityChanges(final boolean available, final Product product)
+       public void availabilityChanges(final boolean available, final Product product, Exception error)
        {
               runOnUiThread(new Runnable()
               {
@@ -287,7 +287,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        {
               try
               {
-                     Thread.sleep(50);
+                     Thread.sleep(200);
               } catch (InterruptedException e)
               {
                      e.printStackTrace();

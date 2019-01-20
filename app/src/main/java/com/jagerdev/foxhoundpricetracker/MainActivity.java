@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity
 {
        private ListView list_products;
        private PriceTrackerService priceTrackerService;
-       private ProductAdapter adapter;
+       private ProductAdapter productAdapter;
        private ServiceRunHandler svcRunHandler;
 
        private SwipeRefreshLayout product_swipe_refresh;
@@ -61,6 +61,32 @@ public class MainActivity extends AppCompatActivity
               public void onServiceDisconnected(ComponentName componentName)
               {
                      trackerSvcBound = false;
+              }
+       };
+
+       private SearchView.OnQueryTextListener searchQueryListener = new SearchView.OnQueryTextListener()
+       {
+              @Override
+              public boolean onQueryTextSubmit(String s)
+              {
+                     return false;
+              }
+
+              @Override
+              public boolean onQueryTextChange(String newText)
+              {
+                     productAdapter.getFilter().filter(newText);
+                     return false;
+              }
+       };
+
+       private SearchView.OnCloseListener searchCloseListener = new SearchView.OnCloseListener()
+       {
+              @Override
+              public boolean onClose()
+              {
+                     productAdapter.getFilter().filter(null);
+                     return false;
               }
        };
 
@@ -96,7 +122,7 @@ public class MainActivity extends AppCompatActivity
 
               TrackerInitializer.initialize(this);
 
-              adapter = new ProductAdapter(this);
+              productAdapter = new ProductAdapter(this);
 
               try
               {
@@ -106,7 +132,10 @@ public class MainActivity extends AppCompatActivity
                      e.printStackTrace();
               }
 
-              list_products.setAdapter(adapter);
+              list_products.setAdapter(productAdapter);
+
+//              Intent webService = new Intent(this, WebService.class);
+//              startService(webService);
 
 //              ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET},1);
 
@@ -125,11 +154,11 @@ public class MainActivity extends AppCompatActivity
        protected void onResume()
        {
               svcRunHandler.uiActivated(this.getClass().getName());
-              if (adapter != null && priceTrackerService != null)
+              if (productAdapter != null && priceTrackerService != null)
               {
                      setItemsToList();
                      priceTrackerService.addEventListener(this);
-                     adapter.notifyDataSetChanged();
+                     productAdapter.notifyDataSetChanged();
               }
               super.onResume();
        }
@@ -166,9 +195,9 @@ public class MainActivity extends AppCompatActivity
                      @Override
                      public void run()
                      {
-                            adapter.clear();
-                            adapter.addAll(products.values());
-                            adapter.sort(new ProductComparator());
+                            productAdapter.clear();
+                            productAdapter.addAll(products.values());
+                            productAdapter.sort(new ProductComparator());
                      }
               });
        }
@@ -228,6 +257,10 @@ public class MainActivity extends AppCompatActivity
        {
               // Inflate the menu; this adds items to the action bar if it is present.
               getMenuInflater().inflate(R.menu.menu_main, menu);
+              MenuItem searchItem = menu.findItem(R.id.app_bar_search);
+              SearchView searchInterface = (SearchView) searchItem.getActionView();
+              searchInterface.setOnQueryTextListener(searchQueryListener);
+              searchInterface.setOnCloseListener(searchCloseListener);
               return true;
        }
 
@@ -271,21 +304,21 @@ public class MainActivity extends AppCompatActivity
                      @Override
                      public void run()
                      {
-                            adapter.notifyDataSetChanged();
+                            productAdapter.notifyDataSetChanged();
                             Toast.makeText(MainActivity.this, String.format("%s: price changed from %s to %s", product.getName(), oldPrice, newPrice), Toast.LENGTH_SHORT).show();
                      }
               });
        }
 
        @Override
-       public void availabilityChanges(final boolean available, final Product product)
+       public void availabilityChanges(final boolean available, final Product product, Exception error)
        {
               runOnUiThread(new Runnable()
               {
                      @Override
                      public void run()
                      {
-                            adapter.notifyDataSetChanged();
+                            productAdapter.notifyDataSetChanged();
                             Toast.makeText(MainActivity.this, String.format("%s became %s", product.getName(), available ? "available" : "not available"), Toast.LENGTH_SHORT).show();
                      }
               });

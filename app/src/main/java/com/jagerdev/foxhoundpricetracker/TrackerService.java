@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.jagerdev.foxhoundpricetracker.utils.NotificationHelper;
 import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
@@ -73,14 +72,6 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        public void onDestroy()
        {
               super.onDestroy();
-              Log.i("TrackerService Destroy", "PriceTracker service is being destroyed!");
-              if (!forceStopped)
-              {
-                     logger.info("PriceTracker service is being destroyed by OS! Sending last scream broadcast");
-                     Intent broadcastIntent = new Intent("com.jager.foxhoundpricetracker.ActivityRevive.RestartPriceTrackerService");
-                     sendBroadcast(broadcastIntent);
-              }
-              else logger.info("PriceTracker service is stopped manually.");
               if (priceTrackerSvc != null)
               {
                      try
@@ -92,6 +83,15 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
                      }
               }
               running = false;
+
+              if (!forceStopped)
+              {
+                     logger.info("PriceTracker service is being destroyed by OS! Sending last scream broadcast");
+                     Intent broadcastIntent = new Intent("com.jager.foxhoundpricetracker.ActivityRevive.RestartPriceTrackerService");
+                     sendBroadcast(broadcastIntent);
+                     logger.info("Last scream broadcast sent!");
+              }
+              else logger.info("PriceTracker service is stopped manually.");
        }
 
        @Override
@@ -107,7 +107,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        }
 
        @Override
-       public void availabilityChanges(boolean available, Product product)
+       public void availabilityChanges(boolean available, Product product, Exception error)
        {
               notificationHelper.sendNotification(this, product.getId(), product.getName(),  available ? "Available" : "Not available", R.drawable.availability_changes);
        }
