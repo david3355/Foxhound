@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PriceTracker</title>
+    <meta charset="utf-8"/>
+    <link rel="icon" href="img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/pricetracker_styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="script/bootstrap-notify.min.js"></script>
+    <script src="script/notifications.js"></script>
+    <script src="script/websocket.js"></script>
+    <script src="script/util.js"></script>
+
+
+    <style>
+		html { margin-top: 65px;  }
+
+		#pagetitle {
+	font-family : "century gothic";
+	vertical-align: top;
+	horizontal-align: middle;
+	font-size : 20x;
+	font-weight:bold;
+	color : #FFFFFF;
+	#text-transform : lowercase;
+	text-decoration : none;
+	background : ;
+	padding:0px 3px 1px 3px;
+}
+
+
+form {
+    border: 3px solid #f1f1f1;
+    margin: auto;
+	padding: 10px;
+	horizontal-align: middle;
+    width:40%;
+}
+
+input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 0px 0px 20px 0px;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+}
+
+input[type=button] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+input[type=button]:hover {
+    opacity: 0.8;
+	font-weight:bold;
+}
+
+.container {
+    padding: 16px;
+}
+
+* {
+ font-family: "Lucida Sans Unicode";
+}
+
+
+
+    </style>
+
+</head>
+<!--<body onLoad="connectToNotifier(); ">-->
+<body>
+
+<script>
+
+var host = window.location.hostname;
+
+function trackPrice(){
+	var req = new XMLHttpRequest();
+	var url = "http://" + host + ":25501/pricetracker/products";
+	var source_page_uri = document.getElementById('source_page_uri').value;
+	var target_price = document.getElementById('target_price').value;
+	var target_name = document.getElementById('target_name').value;
+	var inspect_frequency = document.getElementById('inspect_frequency').value;
+	var if_unit = getUnitValue("units");
+	var params = "source_page_uri="+ encodeURIComponent(source_page_uri)+ "&target_price=" + encodeURIComponent(target_price) + "&target_name=" + encodeURIComponent(target_name);
+	if (inspect_frequency != ""){ params += "&inspect_frequency=" + encodeURIComponent(inspect_frequency) + "&if_unit=" + if_unit; }
+	url = url + "?" + params;
+	
+	req.onerror = function() {
+	showNotification("PriceTracker server is not available.", "", "danger"); 
+	}
+	
+	req.open("POST", url, true);
+	//Send the proper header information along with the request
+	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	req.onreadystatechange = function() {
+		if(this.readyState == 4) {
+			try {
+				var responseJson = JSON.parse(this.responseText);
+				if (this.status == 200)
+					showNotification(responseJson.productName + ". Actual price: " + responseJson.actualPrice, "Product registered: ", 'success');
+				else
+					showNotification(responseJson.description, "Failed to track product: ", "danger"); 
+			}
+			catch (e)
+			{ showNotification(e.message, "Error while parsing response: ", "danger"); }
+		}
+	}
+	req.send();
+}
+
+function redirectToHome()
+{
+	var homepage = "pricetracker.html";
+	window.location.replace(homepage);
+	// window.setTimeout('location.replace("http:/google.co.in/")', 1000);
+}
+
+var path_options;
+
+function populateOptions(item, index)
+{
+option = document.createElement('option');
+option.setAttribute('value', index);
+option.appendChild(document.createTextNode(item));
+path_options.appendChild(option);
+}
+
+function getPricePossibilities(){
+	var req = new XMLHttpRequest();
+	var url = "http://" + host + ":25501/pricetracker/getpossiblepaths";
+	var source_page_uri = document.getElementById('source_page_uri').value;
+	var target_price = document.getElementById('target_price').value;
+	var params = "source_page_uri="+ encodeURIComponent(source_page_uri)+ "&target_price=" + encodeURIComponent(target_price);
+	url = url + "?" + params;
+	
+	//Send the proper header information along with the request
+	//req.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); // SEND DATA AS JSON???
+
+	req.onreadystatechange = function() {
+		if(this.readyState == 4) {
+			if (this.status == 200)
+			{
+				var listOfPaths = JSON.parse(this.responseText);
+				path_options = document.getElementById("path_options");
+				path_options.innerHTML = "";
+				listOfPaths.forEach(populateOptions);			
+			}
+			else
+			{
+				showNotification(req.status, "Failed to track product: ", "danger"); 
+			}
+		}
+	}
+	
+	req.onerror = function() {
+	showNotification("PriceTracker server is not available.", "", "danger"); 
+	}
+	
+	req.open("GET", url, true);
+	req.send();
+}
+
+	
+
+
+</script>
+
+<form>
+
+    <div class="container-fluid">
+        <label><b>Target product name</b></label>
+        <input type="text" placeholder="Target product name" name="target_name" id="target_name">
+
+        <label><b>Source page URI</b></label>
+        <input type="text" placeholder="Source page URI" name="source_page_uri" id="source_page_uri"
+               required>
+
+        <label><b>Price</b></label>
+        <input type="text" placeholder="Put the price you are looking for" name="target_price"
+               id="target_price" required>
+
+        <label><b>Inspect frequency</b></label>
+        <div id="units">
+            <input type="radio" name="if_unit" value="sec" style="margin-right: 2px;"
+                   checked="checked">Seconds
+            <input type="radio" name="if_unit" value="min"
+                   style="margin-left: 5px; margin-right: 2px;">Minutes
+            <input type="radio" name="if_unit" value="hour"
+                   style="margin-left: 5px; margin-right: 2px;">Hours
+            <input type="radio" name="if_unit" value="day"
+                   style="margin-left: 5px; margin-right: 2px;">Days
+        </div>
+        <input type="text" placeholder="Inspect frequency" name="inspect_frequency"
+               id="inspect_frequency">
+
+        <button type="button" class="btn btn-primary btn-lg " id="load"
+                data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Processing Order">
+            Submit Order
+        </button>
+        <input id="trackprice" type="button" value="Track price!" onclick="trackPrice();"/>
+        <input id="getpaths" type="button" value="Get path possibilities"
+               onclick="getPricePossibilities();"/>
+        <select id="path_options">
+        </select>
+    </div>
+
+</form>
+
+</body>
+</html>
