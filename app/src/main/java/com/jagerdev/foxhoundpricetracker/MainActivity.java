@@ -331,6 +331,19 @@ public class MainActivity extends AppCompatActivity
        }
 
        @Override
+       public void productAdded(Product product)
+       {
+              AndroidUtil.toastOnThread(this, String.format("New product added: %s", product.getName()));
+       }
+
+       @Override
+       public void productRemoved(Product product)
+       {
+              AndroidUtil.toastOnThread(this, String.format("Product removed: %s", product.getName()));
+       }
+
+
+       @Override
        public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l)
        {
               Product product = (Product) adapterView.getItemAtPosition(i);

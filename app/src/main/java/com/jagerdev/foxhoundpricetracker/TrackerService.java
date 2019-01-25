@@ -119,6 +119,19 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        }
 
        @Override
+       public void productAdded(Product product)
+       {
+              notificationHelper.sendNotification(this, product.getId(), product.getName(),  "New product added.", R.drawable.name);
+       }
+
+       @Override
+       public void productRemoved(Product product)
+       {
+              notificationHelper.sendNotification(this, product.getId(), product.getName(),  "Product removed.", R.drawable.name);
+       }
+
+
+       @Override
        public void run()
        {
               try

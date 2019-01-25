@@ -175,11 +175,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               edit_product_inspect_freq.setText(String.valueOf(frequency.frequency));
               setAvailability(respectiveProduct.isAvailableNow() ? ProductStatus.AVAILABLE : ProductStatus.NOT_AVAILABLE);
 
-              if (respectiveProduct.getActiveAlarms() > 0)
-              {
-                     txt_alarm_count.setText(String.valueOf(respectiveProduct.getActiveAlarms()));
-                     changeAlarmsVisibility(View.VISIBLE);
-              } else changeAlarmsVisibility(View.GONE);
+              checkAlarms();
 
               ArrayAdapter<String> unitsAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, Frequency.UNITS_NAMES);
               unitsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -188,6 +184,15 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
               list_history = findViewById(R.id.list_history);
               edit_product_name.requestFocus();
+       }
+
+       private void checkAlarms()
+       {
+              if (respectiveProduct.getActiveAlarms() > 0)
+              {
+                     txt_alarm_count.setText(String.valueOf(respectiveProduct.getActiveAlarms()));
+                     changeAlarmsVisibility(View.VISIBLE);
+              } else changeAlarmsVisibility(View.GONE);
        }
 
        public View createViewForListItem(ViewGroup parent, ProductSnapshot product)
@@ -204,11 +209,13 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        @Override
        public void priceChanges(final String oldPrice, final String newPrice, final Product product)
        {
+              if (!respectiveProduct.getId().equals(product.getId())) return;
               runOnUiThread(new Runnable()
               {
                      @Override
                      public void run()
                      {
+                            checkAlarms();
                             txt_product_actual_price.setText(newPrice);
                             edit_product_price.setText(newPrice);
                      }
@@ -218,6 +225,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        @Override
        public void availabilityChanges(final boolean available, final Product product, Exception error)
        {
+              if (!respectiveProduct.getId().equals(product.getId())) return;
               runOnUiThread(new Runnable()
               {
                      @Override
@@ -231,6 +239,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        @Override
        public void productChecked(final Product product)
        {
+              if (!respectiveProduct.getId().equals(product.getId())) return;
               runOnUiThread(new Runnable()
               {
                      @Override
@@ -248,6 +257,18 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             historySetter.start();
                      }
               });
+       }
+
+       @Override
+       public void productAdded(Product product)
+       {
+              AndroidUtil.toastOnThread(this, String.format("New product added: %s", product.getName()));
+       }
+
+       @Override
+       public void productRemoved(Product product)
+       {
+              AndroidUtil.toastOnThread(this, String.format("Product removed: %s", product.getName()));
        }
 
        enum ProductStatus
@@ -391,7 +412,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private void removeProduct()
        {
               String productId = respectiveProduct.getId();
-              priceTrackerService.deleteProduct(productId);
+              priceTrackerManager.removeProduct(productId);
               Toast.makeText(this, "Product removed.", Toast.LENGTH_SHORT).show();
        }
 
