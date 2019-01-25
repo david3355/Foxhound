@@ -91,8 +91,8 @@
 
                 <ImageButton
                     android:id="@+id/btn_time_plus"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="27dp"
+                    android:layout_height="27dp"
                     android:scaleType="fitCenter"
                     android:background="@null"
                     android:src="@drawable/plus"/>
@@ -104,13 +104,16 @@
                     android:layout_width="100dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:gravity="center"
                     android:backgroundTint="@color/colorSpringGreen"
                     android:textCursorDrawable="@drawable/cursor"/>
 
                 <ImageButton
                     android:id="@+id/btn_time_minus"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
+                    android:layout_width="27dp"
+                    android:layout_height="27dp"
                     android:scaleType="fitCenter"
                     android:background="@null"
                     android:src="@drawable/minus"/>
@@ -119,7 +122,8 @@
                 <Spinner
                     android:id="@+id/new_product_inspect_unit"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp">
 
                 </Spinner>
             </LinearLayout>

@@ -28,6 +28,8 @@ import controllers.validators.OnInvalidInput;
 import database.DatabaseException;
 import tracker.PriceTrackerManager;
 
+import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
+
 public class NewProductActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput
 {
        private ServiceRunHandler svcRunHandler;
@@ -116,26 +118,13 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                             trackNewItem();
                             break;
                      case R.id.btn_time_plus:
-                            updateTime(true);
+                            updateTextValue(true, new_product_inspect_freq);
                             break;
                      case R.id.btn_time_minus:
-                            updateTime(false);
+                            updateTextValue(false, new_product_inspect_freq);
                             break;
               }
 
-       }
-
-       private void updateTime(boolean increase)
-       {
-              try
-              {
-                     int value = Integer.parseInt(new_product_inspect_freq.getText().toString());
-                     value = increase ? value + 1 : value - 1;
-                     new_product_inspect_freq.setText(value);
-              } catch (Exception e)
-              {
-
-              }
        }
 
        @Override

@@ -41,6 +41,8 @@ import tracker.PriceTrackerManager;
 import tracker.PriceTrackerService;
 import tracker.clientnotifier.PriceTrackEvent;
 
+import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
+
 public class ProductInfoActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, PriceTrackEvent
 {
 
@@ -61,6 +63,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private Button btn_retrack_product;
        private ImageButton btn_ack_alarms;
        private ProgressBar progress_product_refresh;
+       private ImageButton btn_edit_time_plus, btn_edit_time_minus;
 
        @Override
        protected void onResume()
@@ -135,6 +138,12 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_retrack_product.setOnClickListener(this);
               btn_edit_price.setOnClickListener(this);
               edit_product_inspect_unit = findViewById(R.id.edit_product_inspect_unit);
+
+              btn_edit_time_plus = findViewById(R.id.btn_edit_time_plus);
+              btn_edit_time_minus = findViewById(R.id.btn_edit_time_minus);
+
+              btn_edit_time_plus.setOnClickListener(this);
+              btn_edit_time_minus.setOnClickListener(this);
 
               txt_product_url.setOnClickListener(this);
               label_product_path.setOnClickListener(this);
@@ -552,6 +561,12 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      case R.id.label_product_price:
                             AndroidUtil.setClipboardText(this, respectiveProduct.getActualPrice());
                             showClipboardCopyMsg(respectiveProduct.getActualPrice());
+                            break;
+                     case R.id.btn_edit_time_plus:
+                            updateTextValue(true, edit_product_inspect_freq);
+                            break;
+                     case R.id.btn_edit_time_minus:
+                            updateTextValue(false, edit_product_inspect_freq);
                             break;
               }
        }
