@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>PriceTracker</title>
+    <title>FoxHound price tracker</title>
     <meta charset="utf-8"/>
     <link rel="icon" href="img/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet"
           href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="styles/pricetracker_styles.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
-    <script src="script/bootstrap-notify.min.js"></script>
-    <script src="script/notifications.js"></script>
-    <script src="script/websocket.js"></script>
-    <script src="script/util.js"></script>
 
 
     <style>
@@ -85,6 +80,14 @@ input[type=button]:hover {
 
 var host = window.location.hostname;
 
+function getUnitValue(containerId)
+{
+	var units = document.getElementById(containerId).children;
+	for(var i = 0; i < units.length; i++){
+		if(units[i].checked){ return units[i].value; }
+	}
+}
+
 function trackPrice(){
 	var req = new XMLHttpRequest();
 	var url = "http://" + host + ":25501/pricetracker/products";
@@ -98,7 +101,7 @@ function trackPrice(){
 	url = url + "?" + params;
 	
 	req.onerror = function() {
-	showNotification("PriceTracker server is not available.", "", "danger"); 
+	alert("PriceTracker server is not available.");
 	}
 	
 	req.open("POST", url, true);
@@ -109,12 +112,12 @@ function trackPrice(){
 			try {
 				var responseJson = JSON.parse(this.responseText);
 				if (this.status == 200)
-					showNotification(responseJson.productName + ". Actual price: " + responseJson.actualPrice, "Product registered: ", 'success');
+					alert(responseJson.productName + ". Actual price: " + responseJson.actualPrice);
 				else
-					showNotification(responseJson.description, "Failed to track product: ", "danger"); 
+					alert(responseJson.description);
 			}
 			catch (e)
-			{ showNotification(e.message, "Error while parsing response: ", "danger"); }
+			{ alert(e.message); }
 		}
 	}
 	req.send();
@@ -205,10 +208,6 @@ function getPricePossibilities(){
         <input type="text" placeholder="Inspect frequency" name="inspect_frequency"
                id="inspect_frequency">
 
-        <button type="button" class="btn btn-primary btn-lg " id="load"
-                data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Processing Order">
-            Submit Order
-        </button>
         <input id="trackprice" type="button" value="Track price!" onclick="trackPrice();"/>
         <input id="getpaths" type="button" value="Get path possibilities"
                onclick="getPricePossibilities();"/>

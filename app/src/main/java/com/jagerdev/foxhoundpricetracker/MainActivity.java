@@ -134,8 +134,13 @@ public class MainActivity extends AppCompatActivity
 
               list_products.setAdapter(productAdapter);
 
-              Intent webService = new Intent(this, WebService.class);
-              startService(webService);
+
+              if (!AndroidUtil.isServiceRunning(this, WebService.class))
+              {
+                     Intent webService = new Intent(this, WebService.class);
+                     startService(webService);
+              }
+
 
 //              ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET},1);
 
