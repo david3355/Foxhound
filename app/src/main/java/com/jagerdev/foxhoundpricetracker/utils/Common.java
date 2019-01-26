@@ -10,6 +10,7 @@ public class Common
               {
                      int value = Integer.parseInt(textView.getText().toString());
                      value = increase ? value + 1 : value - 1;
+                     if (value < 0) return;
                      textView.setText(String.valueOf(value));
               } catch (Exception e)
               {
