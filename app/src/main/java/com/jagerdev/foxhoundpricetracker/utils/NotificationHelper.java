@@ -14,9 +14,11 @@ import com.jagerdev.foxhoundpricetracker.MainActivity;
 import com.jagerdev.foxhoundpricetracker.ProductInfoActivity;
 import com.jagerdev.foxhoundpricetracker.R;
 
+import java.util.Random;
+
 public class NotificationHelper
 {
-//       final static String GROUP_KEY_PRICETRACKER = "price_tracker";
+       //       final static String GROUP_KEY_PRICETRACKER = "price_tracker";
        private final static String CHANNEL_ID = "price_tracker_notifications";
 
        public NotificationHelper(Context context)
@@ -31,7 +33,7 @@ public class NotificationHelper
               NotificationManager notificationManager =
                       (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-              Intent resultIntent = new Intent(context, ProductInfoActivity.class);
+              Intent resultIntent = new Intent(context, productId != null ? ProductInfoActivity.class : MainActivity.class);
               resultIntent.putExtra("product_id", productId);
               PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent,
                       PendingIntent.FLAG_UPDATE_CURRENT);
@@ -57,7 +59,8 @@ public class NotificationHelper
               Notification notif = notifBuilder.build();
               notif.flags |= Notification.FLAG_AUTO_CANCEL;
 
-              notificationManager.notify(productId.hashCode(), notif);
+              int notificationId = productId != null ? productId.hashCode() : new Random().nextInt(10000);
+              notificationManager.notify(notificationId, notif);
        }
 
        public Notification createForegroundServiceNotification(Context context, String notificationTitle, String notificationText)

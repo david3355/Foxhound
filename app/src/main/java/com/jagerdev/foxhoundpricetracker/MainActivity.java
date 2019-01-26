@@ -333,12 +333,14 @@ public class MainActivity extends AppCompatActivity
        @Override
        public void productAdded(Product product)
        {
+              setItemsToList();
               AndroidUtil.toastOnThread(this, String.format("New product added: %s", product.getName()));
        }
 
        @Override
        public void productRemoved(Product product)
        {
+              setItemsToList();
               AndroidUtil.toastOnThread(this, String.format("Product removed: %s", product.getName()));
        }
 
@@ -363,6 +365,7 @@ public class MainActivity extends AppCompatActivity
        @Override
        public void onRefresh()
        {
-              forceRefreshAllProducts();
+//              forceRefreshAllProducts();
+              product_swipe_refresh.setRefreshing(false);
        }
 }
