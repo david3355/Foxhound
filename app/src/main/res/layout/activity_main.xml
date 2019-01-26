@@ -28,7 +28,6 @@
         android:visibility="gone"
         ></SearchView>
 
-
     <include layout="@layout/content_main"/>
 
     <android.support.design.widget.FloatingActionButton

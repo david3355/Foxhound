@@ -15,11 +15,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jagerdev.foxhoundpricetracker.products.ProductAdapter;
 import com.jagerdev.foxhoundpricetracker.products.ProductComparator;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
+import com.jagerdev.foxhoundpricetracker.utils.NetworkUtil;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
 
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity
         AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener
 {
        private ListView list_products;
+       private TextView txt_webpage_address;
        private PriceTrackerService priceTrackerService;
        private ProductAdapter productAdapter;
        private ServiceRunHandler svcRunHandler;
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity
               Toolbar toolbar = findViewById(R.id.toolbar);
               svcRunHandler = ServiceRunHandler.getInstance();
 
+              txt_webpage_address = findViewById(R.id.txt_webpage_address);
               search_bar_products = findViewById(R.id.search_bar_products);
               product_swipe_refresh = findViewById(R.id.product_swipe_refresh);
               product_swipe_refresh.setOnRefreshListener(this);
@@ -139,6 +143,17 @@ public class MainActivity extends AppCompatActivity
               {
                      Intent webService = new Intent(this, WebService.class);
                      startService(webService);
+              }
+
+              String hostAddress = NetworkUtil.getWifiIp(this);
+              if (hostAddress != null )   // TODO check if gui service is running
+              {
+                     txt_webpage_address.setText(String.format("http://%s:%s", hostAddress, WebService.GUI_PORT));
+                     txt_webpage_address.setVisibility(View.VISIBLE);
+              }
+              else
+              {
+                     txt_webpage_address.setVisibility(View.GONE);
               }
 
 

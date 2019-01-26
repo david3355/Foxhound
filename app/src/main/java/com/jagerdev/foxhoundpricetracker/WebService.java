@@ -17,12 +17,15 @@ public class WebService extends Service implements OnInvalidInput
        private MiniGUIServer guiServer;
        private MiniRESTServer restServer;
 
+       public static final int GUI_PORT = 8585;
+       public static final int REST_PORT = 25501;
+
        public WebService()
        {
-              guiServer = new MiniGUIServer("0.0.0.0", 8585, this);
+              guiServer = new MiniGUIServer("0.0.0.0", GUI_PORT, this);
               try
               {
-                     restServer = new MiniRESTServer("0.0.0.0", 25501, this);
+                     restServer = new MiniRESTServer("0.0.0.0", REST_PORT, this);
               } catch (DatabaseException e)
               {
                      e.printStackTrace();

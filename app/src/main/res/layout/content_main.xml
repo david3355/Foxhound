@@ -16,12 +16,33 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ListView
-            android:id="@+id/list_products"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"/>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txt_webpage_address"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@color/colorSpringGreen"
+                android:gravity="center"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:textColorLink="@color/colorWhite"
+                android:textColor="@color/colorWhite"
+                android:textStyle="bold"
+                android:visibility="gone"
+                />
+
+            <ListView
+                android:id="@+id/list_products"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 
 </android.support.constraint.ConstraintLayout>
