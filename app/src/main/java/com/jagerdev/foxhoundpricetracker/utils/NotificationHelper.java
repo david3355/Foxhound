@@ -30,12 +30,14 @@ public class NotificationHelper
 
        public void sendNotification(Context context, String productId, String notificationTitle, String notificationText, int notificationIconSmall)
        {
+              int notificationId = productId != null ? productId.hashCode() : new Random().nextInt(10000);
+
               NotificationManager notificationManager =
                       (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
               Intent resultIntent = new Intent(context, productId != null ? ProductInfoActivity.class : MainActivity.class);
               resultIntent.putExtra("product_id", productId);
-              PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent,
+              PendingIntent resultPendingIntent = PendingIntent.getActivity(context, notificationId, resultIntent,
                       PendingIntent.FLAG_UPDATE_CURRENT);
 
               NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(context.getApplicationContext(), CHANNEL_ID);
@@ -59,14 +61,14 @@ public class NotificationHelper
               Notification notif = notifBuilder.build();
               notif.flags |= Notification.FLAG_AUTO_CANCEL;
 
-              int notificationId = productId != null ? productId.hashCode() : new Random().nextInt(10000);
               notificationManager.notify(notificationId, notif);
        }
 
        public Notification createForegroundServiceNotification(Context context, String notificationTitle, String notificationText)
        {
+              int serviceNotificationRequestCode = "FoxHoundServiceNotification".hashCode();
               Intent resultIntent = new Intent(context, MainActivity.class);
-              PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, resultIntent,
+              PendingIntent resultPendingIntent = PendingIntent.getActivity(context, serviceNotificationRequestCode, resultIntent,
                       PendingIntent.FLAG_UPDATE_CURRENT);
 
               NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(ctx)
