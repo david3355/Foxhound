@@ -103,13 +103,14 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        @Override
        public void priceChanges(String oldPrice, String newPrice, Product product)
        {
-              notificationHelper.sendNotification(this, product.getId(), product.getName(), String.format("New price: %s", newPrice), R.drawable.price_change);
+              notificationHelper.sendNotification(this, product.getId(), product.getName(), String.format("New price: %s", newPrice), R.drawable.price_change, false);
        }
 
        @Override
        public void availabilityChanges(boolean available, Product product, Exception error)
        {
-              notificationHelper.sendNotification(this, product.getId(), product.getName(),  available ? "Available" : "Not available", R.drawable.availability_changes);
+              int iconResource = available ? R.drawable.available : R.drawable.not_available;
+              notificationHelper.sendNotification(this, product.getId(), product.getName(),  available ? "Available" : "Not available", iconResource, available);
        }
 
        @Override
@@ -121,13 +122,13 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        @Override
        public void productAdded(Product product)
        {
-              notificationHelper.sendNotification(this, product.getId(), product.getName(),  "New product added.", R.drawable.name);
+              notificationHelper.sendNotification(this, product.getId(), product.getName(),  "New product added.", R.drawable.name, false);
        }
 
        @Override
        public void productRemoved(Product product)
        {
-              notificationHelper.sendNotification(this, null, product.getName(),  "Product removed.", R.drawable.name);
+              notificationHelper.sendNotification(this, null, product.getName(),  "Product removed.", R.drawable.name, false);
        }
 
 

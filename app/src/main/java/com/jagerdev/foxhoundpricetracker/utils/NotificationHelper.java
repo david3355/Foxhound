@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.app.NotificationCompat;
 
 import com.jagerdev.foxhoundpricetracker.MainActivity;
@@ -28,12 +29,23 @@ public class NotificationHelper
 
        private Context ctx;
 
-       public void sendNotification(Context context, String productId, String notificationTitle, String notificationText, int notificationIconSmall)
+       public void sendNotification(Context context, String productId, String notificationTitle, String notificationText, int notificationIconSmall, boolean cancel)
        {
-              int notificationId = productId != null ? productId.hashCode() : new Random().nextInt(10000);
-
               NotificationManager notificationManager =
                       (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+              if (notificationManager == null) return;
+
+              int notificationId = productId != null ? productId.hashCode() : new Random().nextInt(10000);
+
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+              {
+                     for (StatusBarNotification notification : notificationManager.getActiveNotifications())
+                            if (notification.getId() == notificationId && cancel)
+                            {
+                                   notificationManager.cancel(notificationId);
+                                   return;
+                            }
+              }
 
               Intent resultIntent = new Intent(context, productId != null ? ProductInfoActivity.class : MainActivity.class);
               resultIntent.putExtra("product_id", productId);
