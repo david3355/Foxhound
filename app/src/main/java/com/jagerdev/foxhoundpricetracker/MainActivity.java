@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -35,10 +36,11 @@ import tracker.clientnotifier.PriceTrackEvent;
 
 public class MainActivity extends AppCompatActivity
         implements OnInvalidInput, PriceTrackEvent, AdapterView.OnItemLongClickListener,
-        AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener
+        AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, View.OnLongClickListener
 {
        private ListView list_products;
        private TextView txt_webpage_address;
+       private LinearLayout panel_webpage_address;
        private PriceTrackerService priceTrackerService;
        private ProductAdapter productAdapter;
        private ServiceRunHandler svcRunHandler;
@@ -102,6 +104,7 @@ public class MainActivity extends AppCompatActivity
               Toolbar toolbar = findViewById(R.id.toolbar);
               svcRunHandler = ServiceRunHandler.getInstance();
 
+              panel_webpage_address = findViewById(R.id.panel_webpage_address);
               txt_webpage_address = findViewById(R.id.txt_webpage_address);
               search_bar_products = findViewById(R.id.search_bar_products);
 //              product_swipe_refresh = findViewById(R.id.product_swipe_refresh);
@@ -124,6 +127,9 @@ public class MainActivity extends AppCompatActivity
               list_products = findViewById(R.id.list_products);
               list_products.setOnItemLongClickListener(this);
               list_products.setOnItemClickListener(this);
+
+              txt_webpage_address.setOnClickListener(this);
+              txt_webpage_address.setOnLongClickListener(this);
 
               TrackerInitializer.initialize(this);
 
@@ -156,11 +162,11 @@ public class MainActivity extends AppCompatActivity
               if (hostAddress != null )   // TODO check if gui service is running
               {
                      txt_webpage_address.setText(String.format("http://%s:%s", hostAddress, WebService.GUI_PORT));
-                     txt_webpage_address.setVisibility(View.VISIBLE);
+                     panel_webpage_address.setVisibility(View.VISIBLE);
               }
               else
               {
-                     txt_webpage_address.setVisibility(View.GONE);
+                     panel_webpage_address.setVisibility(View.GONE);
               }
        }
 
@@ -387,10 +393,41 @@ public class MainActivity extends AppCompatActivity
               startActivity(editProductActivity);
        }
 
+
+       private void copyWebserviceAddress()
+       {
+              String address = txt_webpage_address.getText().toString();
+              AndroidUtil.setClipboardText(this, address);
+              Toast.makeText(this, "Copied to clipboard: " + address, Toast.LENGTH_SHORT).show();
+       }
+
        @Override
        public void onRefresh()
        {
 //              forceRefreshAllProducts();
 //              product_swipe_refresh.setRefreshing(false);
+       }
+
+       @Override
+       public void onClick(View view)
+       {
+              switch (view.getId())
+              {
+                     case R.id.txt_webpage_address:
+                            copyWebserviceAddress();
+                            break;
+              }
+       }
+
+       @Override
+       public boolean onLongClick(View view)
+       {
+              switch (view.getId())
+              {
+                     case R.id.txt_webpage_address:
+                            AndroidUtil.openInDefaultBrowser(this, txt_webpage_address.getText().toString());
+                            return false;
+              }
+              return false;
        }
 }
