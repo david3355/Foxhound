@@ -43,7 +43,8 @@ public class MainActivity extends AppCompatActivity
        private ProductAdapter productAdapter;
        private ServiceRunHandler svcRunHandler;
 
-       private SwipeRefreshLayout product_swipe_refresh;
+//       private SwipeRefreshLayout product_swipe_refresh;
+
        private SearchView search_bar_products;
        private boolean trackerSvcBound = false;
 
@@ -103,8 +104,8 @@ public class MainActivity extends AppCompatActivity
 
               txt_webpage_address = findViewById(R.id.txt_webpage_address);
               search_bar_products = findViewById(R.id.search_bar_products);
-              product_swipe_refresh = findViewById(R.id.product_swipe_refresh);
-              product_swipe_refresh.setOnRefreshListener(this);
+//              product_swipe_refresh = findViewById(R.id.product_swipe_refresh);
+//              product_swipe_refresh.setOnRefreshListener(this);
               setSupportActionBar(toolbar);
 
               FloatingActionButton fab = findViewById(R.id.fab);
@@ -264,7 +265,7 @@ public class MainActivity extends AppCompatActivity
                                    @Override
                                    public void run()
                                    {
-                                          product_swipe_refresh.setRefreshing(false);
+//                                          product_swipe_refresh.setRefreshing(false);
                                    }
                             });
                      }
@@ -386,6 +387,6 @@ public class MainActivity extends AppCompatActivity
        public void onRefresh()
        {
 //              forceRefreshAllProducts();
-              product_swipe_refresh.setRefreshing(false);
+//              product_swipe_refresh.setRefreshing(false);
        }
 }
