@@ -139,7 +139,13 @@ public class MainActivity extends AppCompatActivity
 
               list_products.setAdapter(productAdapter);
 
+//              ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET},1);
 
+//              if (!AndroidUtil.isServiceRunning(this, TrackerService.class)) startTrackerService();
+       }
+
+       private void checkWebserver()
+       {
               if (!AndroidUtil.isServiceRunning(this, WebService.class))
               {
                      Intent webService = new Intent(this, WebService.class);
@@ -156,11 +162,6 @@ public class MainActivity extends AppCompatActivity
               {
                      txt_webpage_address.setVisibility(View.GONE);
               }
-
-
-//              ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET},1);
-
-//              if (!AndroidUtil.isServiceRunning(this, TrackerService.class)) startTrackerService();
        }
 
        @Override
@@ -181,6 +182,9 @@ public class MainActivity extends AppCompatActivity
                      priceTrackerService.addEventListener(this);
                      productAdapter.notifyDataSetChanged();
               }
+
+              checkWebserver();    // TODO user can turn it on and off manually later
+
               super.onResume();
        }
 
