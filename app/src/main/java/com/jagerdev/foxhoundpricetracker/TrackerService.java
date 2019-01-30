@@ -153,7 +153,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
         * Place the service into the foreground
         */
        public void foreground() {
-              startForeground(NOTIFICATION_ID, new NotificationHelper(this).createForegroundServiceNotification(this,"Tracker service active", "Tap to return to PriceTracker"));
+              startForeground(NOTIFICATION_ID, new NotificationHelper(this).createForegroundServiceNotification(this));
        }
 
        /**
