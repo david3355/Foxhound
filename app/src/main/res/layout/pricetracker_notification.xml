@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="64dp"
+              android:layout_height="80dp"
               android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/panel_notification"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal">
@@ -12,7 +13,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
+            android:layout_margin="13dp"
             android:orientation="vertical"
             >
 
@@ -39,18 +40,18 @@
 
             <ImageButton
                 android:id="@+id/btn_copy_new_product"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
                 android:layout_marginRight="20dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/name"/>
+                android:src="@drawable/copy_product"/>
 
             <ImageButton
                 android:id="@+id/btn_go_to_application"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@null"
                 android:scaleType="fitCenter"
                 android:layout_gravity="center_vertical"

@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
 
@@ -52,6 +53,8 @@ public class FloatingCopyService extends Service implements View.OnClickListener
        public void onCreate()
        {
               super.onCreate();
+
+              Toast.makeText(this, "Product copy - paste is on.", Toast.LENGTH_SHORT).show();
 
               //Inflate the floating view layout we created
               mFloatingView = LayoutInflater.from(this).inflate(R.layout.pricetracker_floating_widget, null);
