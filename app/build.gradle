@@ -40,6 +40,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0'
     compile group: 'org.nanohttpd', name: 'nanohttpd', version: '2.3.0'
+    compile 'com.jjoe64:graphview:4.2.1'
     compile('jager.pricetracker.engine:PriceTrackerEngine:1.0.0')
             {
                 exclude module: 'org.restlet.ext.json'

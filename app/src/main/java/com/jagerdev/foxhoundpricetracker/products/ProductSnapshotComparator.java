@@ -6,9 +6,22 @@ import model.ProductSnapshot;
 
 public class ProductSnapshotComparator implements Comparator<ProductSnapshot>
 {
+       public ProductSnapshotComparator(boolean ascending)
+       {
+              this.ascending = ascending;
+       }
+
+       public ProductSnapshotComparator()
+       {
+              this(true);
+       }
+
+       private boolean ascending;
+
        @Override
        public int compare(ProductSnapshot a, ProductSnapshot b)
        {
-              return a.getDateOfSnapshot().getMillis() < b.getDateOfSnapshot().getMillis() ? 1 : a.getDateOfSnapshot().getMillis() == b.getDateOfSnapshot().getMillis() ? 0 : -1;
+              int compareSign = ascending ? -1 : 1;
+              return a.getDateOfSnapshot().getMillis() < b.getDateOfSnapshot().getMillis() ? compareSign : a.getDateOfSnapshot().getMillis() == b.getDateOfSnapshot().getMillis() ? 0 : -compareSign;
        }
 }
