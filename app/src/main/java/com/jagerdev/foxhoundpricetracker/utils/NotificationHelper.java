@@ -92,8 +92,8 @@ public class NotificationHelper
                       PendingIntent.FLAG_UPDATE_CURRENT);
 
               RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.pricetracker_notification);
-//              notificationView.setOnClickPendingIntent(R.id.btn_go_to_application, goToApplicationPendingIntent);
               notificationView.setOnClickPendingIntent(R.id.panel_notification, goToApplicationPendingIntent);
+              notificationView.setOnClickPendingIntent(R.id.btn_go_to_application, goToApplicationPendingIntent);
               notificationView.setOnClickPendingIntent(R.id.btn_copy_new_product, copyNewProductPendingIntent);
 
               NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(ctx)
