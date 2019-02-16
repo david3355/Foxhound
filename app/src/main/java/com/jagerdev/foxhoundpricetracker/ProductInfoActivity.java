@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.jagerdev.foxhoundpricetracker.products.Frequency;
 import com.jagerdev.foxhoundpricetracker.products.ProductSnapshotComparator;
+import com.jagerdev.foxhoundpricetracker.products.ProductSource;
 import com.jagerdev.foxhoundpricetracker.products.UniqueSelector;
 import com.jagerdev.foxhoundpricetracker.products.UniversalPriceParser;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
@@ -31,7 +32,12 @@ import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.DataPointInterface;
 import com.jjoe64.graphview.series.LineGraphSeries;
+import com.jjoe64.graphview.series.OnDataPointTapListener;
+import com.jjoe64.graphview.series.Series;
+
+import org.joda.time.DateTime;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -64,6 +70,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private EditText edit_product_name, edit_product_path, edit_product_inspect_freq;
        private TextView txt_product_url, label_product_path, label_product_price, label_product_name;
        private TextView txt_last_check, txt_product_status, txt_record_datetime, txt_alarm_count;
+       private TextView txt_selected_data;
        private Spinner edit_product_inspect_unit;
        private EditText edit_product_price;
        private TextView txt_product_actual_price;
@@ -146,6 +153,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               progress_product_refresh = findViewById(R.id.progress_product_refresh);
 
               priceHistoryGraph = findViewById(R.id.price_history_graph);
+              txt_selected_data = findViewById(R.id.txt_selected_data);
+              txt_selected_data.setOnClickListener(this);
 
               btn_ack_alarms.setOnClickListener(this);
               btn_retrack_product.setOnClickListener(this);
@@ -358,14 +367,28 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        private void drawGraph(List<ProductSnapshot> uniqueHistory)
        {
-              DateFormat format = new SimpleDateFormat("yy/MM/dd");
+              priceHistoryGraph.removeAllSeries();
+
+              DateFormat format = new SimpleDateFormat("MM/dd");
               DateAsXAxisLabelFormatter dateFormatter = new DateAsXAxisLabelFormatter(getApplicationContext(), format);
 
               priceHistoryGraph.getGridLabelRenderer().setLabelFormatter(dateFormatter);
               priceHistoryGraph.getGridLabelRenderer().setNumVerticalLabels(3);
-              priceHistoryGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
+//              priceHistoryGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
+              priceHistoryGraph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+
+              if (uniqueHistory.size() >= 1)
+              {
+                     priceHistoryGraph.getViewport().setXAxisBoundsManual(true);
+                     priceHistoryGraph.getViewport().setMinX(uniqueHistory.get(0).getDateOfSnapshot().getMillis());
+                     priceHistoryGraph.getViewport().setMaxX(uniqueHistory.get(uniqueHistory.size() - 1).getDateOfSnapshot().minusDays(10).getMillis());
+//                     priceHistoryGraph.getViewport().setScalable(true);
+//                     priceHistoryGraph.getViewport().setScrollable(true);
+              }
 
               LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+              series.setDrawDataPoints(true);
+
 
               UniversalPriceParser priceParser = new UniversalPriceParser();
 
@@ -375,8 +398,27 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               {
                      double parsedPrice = priceParser.getPrice(snapshot.getPrice(), respectiveProduct.getId());
                      DataPoint point = new DataPoint(new Date(snapshot.getDateOfSnapshot().getMillis()), parsedPrice);
+
                      series.appendData(point, true, uniqueHistory.size());
               }
+
+              final ProductSource source1 = new ProductSource(respectiveProduct.getName(), respectiveProduct.getWebPath(), series);
+              series.setColor(source1.getColor());
+
+              OnDataPointTapListener listener = new OnDataPointTapListener()
+              {
+                     @Override
+                     public void onTap(Series series, DataPointInterface dataPoint)
+                     {
+                            String time = new DateTime((long)dataPoint.getX()).toString("yyyy-MM-dd HH:mm:ss");
+                            String text = String.format("%s (%s)", dataPoint.getY(), time);
+                            txt_selected_data.setText(text);
+                            if (txt_selected_data.getVisibility() != View.VISIBLE) txt_selected_data.setVisibility(View.VISIBLE);
+                     }
+              };
+
+              series.setOnDataPointTapListener(listener);
+
 
               priceHistoryGraph.addSeries(series);
 
@@ -633,6 +675,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             break;
                      case R.id.btn_edit_time_minus:
                             updateTextValue(false, edit_product_inspect_freq);
+                            break;
+                     case R.id.txt_selected_data:
+                            txt_selected_data.setVisibility(View.GONE);
                             break;
               }
        }
