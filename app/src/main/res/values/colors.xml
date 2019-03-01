@@ -9,4 +9,5 @@
     <color name="colorWhite">#ffffff</color>
     <color name="colorTransparent">#00ffffff</color>
     <color name="colorRed">#d7171a</color>
+    <color name="colorNotifSettingsValue">#ffffff</color>
 </resources>

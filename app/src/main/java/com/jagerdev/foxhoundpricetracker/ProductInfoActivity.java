@@ -16,34 +16,41 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.jagerdev.foxhoundpricetracker.products.Frequency;
 import com.jagerdev.foxhoundpricetracker.products.ProductSnapshotComparator;
-import com.jagerdev.foxhoundpricetracker.products.ProductSource;
 import com.jagerdev.foxhoundpricetracker.products.UniqueSelector;
 import com.jagerdev.foxhoundpricetracker.products.UniversalPriceParser;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.helper.DateAsXAxisLabelFormatter;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.DataPointInterface;
-import com.jjoe64.graphview.series.LineGraphSeries;
-import com.jjoe64.graphview.series.OnDataPointTapListener;
-import com.jjoe64.graphview.series.Series;
+import com.jagerdev.foxhoundpricetracker.utils.chart.HistoryChartMarkerView;
 
-import org.joda.time.DateTime;
-
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import controllers.exceptions.ImproperPathSelectorException;
 import controllers.exceptions.PathForProductNotFoundException;
@@ -58,7 +65,7 @@ import tracker.clientnotifier.PriceTrackEvent;
 
 import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
 
-public class ProductInfoActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, PriceTrackEvent
+public class ProductInfoActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, PriceTrackEvent, OnChartValueSelectedListener
 {
 
        private LinearLayout list_history;
@@ -70,7 +77,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private EditText edit_product_name, edit_product_path, edit_product_inspect_freq;
        private TextView txt_product_url, label_product_path, label_product_price, label_product_name;
        private TextView txt_last_check, txt_product_status, txt_record_datetime, txt_alarm_count;
-       private TextView txt_selected_data;
        private Spinner edit_product_inspect_unit;
        private EditText edit_product_price;
        private TextView txt_product_actual_price;
@@ -80,8 +86,11 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private ImageButton btn_ack_alarms;
        private ProgressBar progress_product_refresh;
        private ImageButton btn_edit_time_plus, btn_edit_time_minus;
+       private ImageView img_notif_settings_expand;
 
-       private GraphView priceHistoryGraph;
+       private LineChart chart;
+
+       private LinearLayout notification_settings_header, notification_settings_panel;
 
        @Override
        protected void onResume()
@@ -152,9 +161,12 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_edit_price = findViewById(R.id.btn_edit_price);
               progress_product_refresh = findViewById(R.id.progress_product_refresh);
 
-              priceHistoryGraph = findViewById(R.id.price_history_graph);
-              txt_selected_data = findViewById(R.id.txt_selected_data);
-              txt_selected_data.setOnClickListener(this);
+              notification_settings_header = findViewById(R.id.notification_settings_header);
+              notification_settings_header.setOnClickListener(this);
+              notification_settings_panel = findViewById(R.id.notification_settings_panel);
+              img_notif_settings_expand = findViewById(R.id.img_notif_settings_expand);
+
+              chart = findViewById(R.id.price_history_chart);
 
               btn_ack_alarms.setOnClickListener(this);
               btn_retrack_product.setOnClickListener(this);
@@ -172,6 +184,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               label_product_price.setOnClickListener(this);
               label_product_name.setOnClickListener(this);
 
+              // TODO set notificationSettings properties from loading database
 
               try
               {
@@ -293,6 +306,18 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               AndroidUtil.toastOnThread(this, String.format("Product removed: %s", product.getName()));
        }
 
+       @Override
+       public void onValueSelected(Entry e, Highlight h)
+       {
+
+       }
+
+       @Override
+       public void onNothingSelected()
+       {
+
+       }
+
        enum ProductStatus
        {
               AVAILABLE,
@@ -348,7 +373,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               UniqueSelector<ProductSnapshot> selector = new UniqueSelector<>();
               final List<ProductSnapshot> uniqueHistory = selector.getUniqueList(history);
 
-              drawGraph(uniqueHistory);
+              initChart();
+              drawChart(uniqueHistory);
 
               Collections.sort(uniqueHistory, new ProductSnapshotComparator(false));
 
@@ -365,62 +391,112 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               });
        }
 
-       private void drawGraph(List<ProductSnapshot> uniqueHistory)
+       private void initChart()
        {
-              priceHistoryGraph.removeAllSeries();
+              // chart
+              // no description text
+              chart.getDescription().setEnabled(false);
 
-              DateFormat format = new SimpleDateFormat("MM/dd");
-              DateAsXAxisLabelFormatter dateFormatter = new DateAsXAxisLabelFormatter(getApplicationContext(), format);
+              HistoryChartMarkerView mv = new HistoryChartMarkerView(this, R.layout.history_chart_marker);
 
-              priceHistoryGraph.getGridLabelRenderer().setLabelFormatter(dateFormatter);
-              priceHistoryGraph.getGridLabelRenderer().setNumVerticalLabels(3);
-//              priceHistoryGraph.getGridLabelRenderer().setNumHorizontalLabels(3);
-              priceHistoryGraph.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+              // Set the marker to the chart
+              mv.setChartView(chart);
+              chart.setMarker(mv);
 
-              if (uniqueHistory.size() >= 1)
+              // enable touch gestures
+              chart.setTouchEnabled(true);
+
+              chart.setDragDecelerationFrictionCoef(0.9f);
+
+              // enable scaling and dragging
+              chart.setDragEnabled(true);
+              chart.setScaleEnabled(false);
+              chart.setDrawGridBackground(false);
+              chart.setHighlightPerDragEnabled(true);
+
+              // set an alternative background color
+              //chart.setBackgroundColor(Color.WHITE);
+              chart.setViewPortOffsets(0f, 0f, 0f, 0f);
+
+              // get the legend (only possible after setting data)
+              Legend l = chart.getLegend();
+              l.setEnabled(false);
+
+              XAxis xAxis = chart.getXAxis();
+              xAxis.setPosition(XAxis.XAxisPosition.BOTTOM_INSIDE);
+//              xAxis.setTypeface(tfLight);
+              xAxis.setTextSize(10f);
+              xAxis.setTextColor(Color.WHITE);
+              xAxis.setDrawAxisLine(false);
+              xAxis.setDrawGridLines(true);
+              xAxis.setTextColor(Color.rgb(51, 174, 98));
+//              xAxis.setTextColor(R.color.colorSpringGreen);
+              xAxis.setCenterAxisLabels(true);
+              xAxis.setGranularity(1f); // one hour
+              xAxis.setValueFormatter(new IAxisValueFormatter()
               {
-                     priceHistoryGraph.getViewport().setXAxisBoundsManual(true);
-                     priceHistoryGraph.getViewport().setMinX(uniqueHistory.get(0).getDateOfSnapshot().getMillis());
-                     priceHistoryGraph.getViewport().setMaxX(uniqueHistory.get(uniqueHistory.size() - 1).getDateOfSnapshot().minusDays(10).getMillis());
-//                     priceHistoryGraph.getViewport().setScalable(true);
-//                     priceHistoryGraph.getViewport().setScrollable(true);
-              }
+                     private final SimpleDateFormat mFormat = new SimpleDateFormat("MMM dd", Locale.ENGLISH);
+                     @Override
+                     public String getFormattedValue(float value, AxisBase axis)
+                     {
+                            long millis = TimeUnit.HOURS.toMillis((long) value);
+                            millis = (long) value;
+                            return mFormat.format(new Date(millis));
+                     }
+              });
 
-              LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-              series.setDrawDataPoints(true);
+              YAxis leftAxis = chart.getAxisLeft();
+              leftAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART);
+//              leftAxis.setTypeface(tfLight);
+              leftAxis.setTextColor(ColorTemplate.getHoloBlue());
+              leftAxis.setDrawGridLines(true);
+              leftAxis.setGranularityEnabled(true);
+              leftAxis.setAxisMinimum(0f);
+              leftAxis.setAxisMaximum(170f);
+              leftAxis.setYOffset(-9f);
+              leftAxis.setTextColor(Color.rgb(51, 174, 98));
+//              leftAxis.setTextColor(R.color.colorSpringGreen);
 
+              YAxis rightAxis = chart.getAxisRight();
+              rightAxis.setEnabled(false);
+       }
+
+       private void drawChart(List<ProductSnapshot> uniqueHistory)
+       {
+              ArrayList<Entry> values = new ArrayList<>();
 
               UniversalPriceParser priceParser = new UniversalPriceParser();
-
-
-
               for (ProductSnapshot snapshot : uniqueHistory)
               {
-                     double parsedPrice = priceParser.getPrice(snapshot.getPrice(), respectiveProduct.getId());
-                     DataPoint point = new DataPoint(new Date(snapshot.getDateOfSnapshot().getMillis()), parsedPrice);
-
-                     series.appendData(point, true, uniqueHistory.size());
+                     float parsedPrice = priceParser.getPrice(snapshot.getPrice(), respectiveProduct.getId());
+                     Entry entry = new Entry(snapshot.getDateOfSnapshot().getMillis(), parsedPrice);
+                     values.add(entry);
               }
 
-              final ProductSource source1 = new ProductSource(respectiveProduct.getName(), respectiveProduct.getWebPath(), series);
-              series.setColor(source1.getColor());
+              // create a dataset and give it a type
+              List<ILineDataSet> dataSets = new ArrayList<>();
 
-              OnDataPointTapListener listener = new OnDataPointTapListener()
-              {
-                     @Override
-                     public void onTap(Series series, DataPointInterface dataPoint)
-                     {
-                            String time = new DateTime((long)dataPoint.getX()).toString("yyyy-MM-dd HH:mm:ss");
-                            String text = String.format("%s (%s)", dataPoint.getY(), time);
-                            txt_selected_data.setText(text);
-                            if (txt_selected_data.getVisibility() != View.VISIBLE) txt_selected_data.setVisibility(View.VISIBLE);
-                     }
-              };
+              LineDataSet set1 = new LineDataSet(values, "DataSet 1");
+              set1.setAxisDependency(YAxis.AxisDependency.RIGHT);
 
-              series.setOnDataPointTapListener(listener);
+              set1.setColor(ColorTemplate.getHoloBlue());
+              set1.setValueTextColor(ColorTemplate.getHoloBlue());
+              set1.setLineWidth(1.5f);
+              set1.setDrawCircles(true);
+              set1.setDrawValues(false);
+              set1.setFillAlpha(65);
+              set1.setFillColor(ColorTemplate.getHoloBlue());
+              set1.setHighLightColor(Color.rgb(244, 117, 117));
+              set1.setDrawCircleHole(false);
 
+              dataSets.add(set1);
+              // create a data object with the data sets
+              LineData data = new LineData(dataSets);
+              data.setValueTextColor(Color.WHITE);
+              data.setValueTextSize(9f);
 
-              priceHistoryGraph.addSeries(series);
+              // set data
+              chart.setData(data);
 
        }
 
@@ -503,7 +579,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               Toast.makeText(this, "Product removed.", Toast.LENGTH_SHORT).show();
        }
 
-       private void retrackProduct()
+       private void reTrackProduct()
        {
               final String productId = respectiveProduct.getId();
               final String productName = edit_product_name.getText().toString();
@@ -653,7 +729,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             changeEditProductKeyProperties();
                             break;
                      case R.id.btn_retrack_product:
-                            retrackProduct();
+                            reTrackProduct();
                             break;
                      case R.id.btn_ack_alarms:
                             acknowledgeAlarms();
@@ -676,10 +752,25 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      case R.id.btn_edit_time_minus:
                             updateTextValue(false, edit_product_inspect_freq);
                             break;
-                     case R.id.txt_selected_data:
-                            txt_selected_data.setVisibility(View.GONE);
+                     case R.id.notification_settings_header:
+                            toggleNotificationSettingsPanel();
                             break;
               }
+       }
+
+       private void toggleNotificationSettingsPanel()
+       {
+              if (notification_settings_panel.getVisibility() == View.GONE)
+              {
+                     img_notif_settings_expand.setRotation(180);
+                     notification_settings_panel.setVisibility(View.VISIBLE);
+              }
+              else
+              {
+                     img_notif_settings_expand.setRotation(0);
+                     notification_settings_panel.setVisibility(View.GONE);
+              }
+
        }
 
        private void showClipboardCopyMsg(String content)

@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/notif_settings_margin_bottom">
+
+        <CheckBox
+            android:id="@+id/check_notification_price_changes"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.6"
+            android:text="price changes"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/notif_settings_margin_bottom">
+
+    <CheckBox
+        android:id="@+id/check_notification_price_goes_above"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.6"
+        android:text="price goes above"/>
+
+    <EditText
+        android:id="@+id/edit_notification_price_goes_above"
+        android:layout_width="@dimen/notif_settings_value_width"
+        android:layout_height="@dimen/notif_settings_value_height"
+        android:padding="@dimen/notif_settings_value_padding"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="0.4"
+        android:layout_marginEnd="@dimen/notif_settings_margin_end"
+        android:textColor="@color/colorNotifSettingsValue"
+        android:maxLines="1"
+        android:background="@drawable/default_foxhound_background"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/notif_settings_margin_bottom">
+
+        <CheckBox
+            android:id="@+id/check_notification_price_goes_below"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.6"
+            android:text="price goes below"/>
+
+        <EditText
+            android:id="@+id/edit_notification_price_goes_below"
+            android:layout_width="@dimen/notif_settings_value_width"
+            android:layout_height="@dimen/notif_settings_value_height"
+            android:padding="@dimen/notif_settings_value_padding"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.4"
+            android:layout_marginEnd="@dimen/notif_settings_margin_end"
+            android:textColor="@color/colorNotifSettingsValue"
+            android:maxLines="1"
+            android:background="@drawable/default_foxhound_background"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginBottom="@dimen/notif_settings_margin_bottom">
+
+        <CheckBox
+            android:id="@+id/check_notification_price_increases_with"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.6"
+            android:text="price increases with"/>
+
+        <EditText
+            android:id="@+id/edit_notification_price_increases_with"
+            android:layout_width="@dimen/notif_settings_value_width_lesser"
+            android:layout_height="@dimen/notif_settings_value_height"
+            android:padding="@dimen/notif_settings_value_padding"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.4"
+            android:textColor="@color/colorNotifSettingsValue"
+            android:maxLines="1"
+            android:background="@drawable/default_foxhound_background"/>
+
+        <TextView
+            android:layout_width="15dp"
+            android:layout_height="25dp"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="@dimen/notif_settings_margin_end"
+            android:text="%"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/notif_settings_margin_bottom">
+
+        <CheckBox
+            android:id="@+id/check_notification_price_decreases_with"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.6"
+            android:text="price decreases with"/>
+
+        <EditText
+            android:id="@+id/edit_notification_price_decreases_with"
+            android:layout_width="@dimen/notif_settings_value_width_lesser"
+            android:layout_height="@dimen/notif_settings_value_height"
+            android:padding="@dimen/notif_settings_value_padding"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.4"
+            android:textColor="@color/colorNotifSettingsValue"
+            android:maxLines="1"
+            android:background="@drawable/default_foxhound_background"/>
+
+        <TextView
+            android:layout_width="15dp"
+            android:layout_height="25dp"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="@dimen/notif_settings_margin_end"
+            android:text="%"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/notif_settings_margin_bottom">
+
+        <CheckBox
+            android:id="@+id/check_notification_availability_changes"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.6"
+            android:text="availability changes"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/notif_settings_margin_bottom">
+
+        <CheckBox
+            android:id="@+id/check_notification_product_becomes_available"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.6"
+            android:text="product becomes available"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="@dimen/notif_settings_margin_bottom">
+
+        <CheckBox
+            android:id="@+id/check_notification_product_becomes_unavailable"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="0.6"
+            android:text="product becomes unavailable"/>
+
+    </LinearLayout>
+
+</LinearLayout>

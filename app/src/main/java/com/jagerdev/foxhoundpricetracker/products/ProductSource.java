@@ -2,8 +2,7 @@ package com.jagerdev.foxhoundpricetracker.products;
 
 import android.graphics.Color;
 
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
+import com.github.mikephil.charting.data.LineDataSet;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,21 +17,21 @@ public class ProductSource
               colorStore = new HashMap<>();
        }
 
-       public ProductSource(String productName, String name, int color, LineGraphSeries<DataPoint> dataPoints)
+       public ProductSource(String productName, String name, int color, LineDataSet dataPoints)
        {
               this.name = name;
               this.color = color;
               this.dataPoints = dataPoints;
        }
 
-       public ProductSource(String productName, String name, LineGraphSeries<DataPoint> dataPoints)
+       public ProductSource(String productName, String name, LineDataSet dataSet)
        {
-              this(productName, name, generateUniqueColor(productName), dataPoints);
+              this(productName, name, generateUniqueColor(productName), dataSet);
        }
 
        private String name;
        private int color;
-       private LineGraphSeries<DataPoint> dataPoints;
+       private LineDataSet dataPoints;
        private static Map<String, Set<Integer>> colorStore;
 
        private static int generateUniqueColor(String id)
@@ -72,12 +71,12 @@ public class ProductSource
               this.color = color;
        }
 
-       public LineGraphSeries<DataPoint> getDataPoints()
+       public LineDataSet getDataSet()
        {
               return dataPoints;
        }
 
-       public void setDataPoints(LineGraphSeries<DataPoint> dataPoints)
+       public void setDataSet(LineDataSet dataPoints)
        {
               this.dataPoints = dataPoints;
        }

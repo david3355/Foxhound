@@ -177,7 +177,6 @@
                 />
 
 
-
             <TextView
                 android:id="@+id/label_product_path"
                 android:layout_width="match_parent"
@@ -233,6 +232,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.9"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
 
@@ -249,6 +249,7 @@
                         style="@style/CustomEditTextTheme"
                         android:layout_width="100dp"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
@@ -279,6 +280,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
+                android:layout_marginBottom="10dp"
                 android:orientation="horizontal">
 
                 <TextView
@@ -297,6 +299,40 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/notification_settings_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginBottom="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.8"
+                    android:text="Notification settings"
+                    android:textColor="@color/colorSpringGreen"
+                    android:textSize="15dp"
+                    android:textStyle="bold"/>
+
+                <ImageView
+                    android:id="@+id/img_notif_settings_expand"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/expand"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/notification_settings_panel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <include layout="@layout/notification_settings"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -329,39 +365,24 @@
                 android:text="Product history:"
                 android:textSize="25sp"/>
 
-            <com.jjoe64.graphview.GraphView
-                android:id="@+id/price_history_graph"
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/price_history_chart"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                app:seriesColor="@color/colorSpringGreen"
-                app:seriesType="points"
-                />
-
-            <TextView
-                android:id="@+id/txt_selected_data"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:layout_marginStart="25dp"
-                android:layout_marginEnd="25dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:padding="4dp"
-                android:textAlignment="center"
-                android:visibility="gone"
-                android:background="@drawable/graph_data_background"/>
+                >
+            </com.github.mikephil.charting.charts.LineChart>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:layout_gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="1"
                 android:background="@color/colorSpringGreen"
                 android:divider="?android:dividerHorizontal"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
                 android:showDividers="middle"/>
 
             <LinearLayout

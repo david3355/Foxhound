@@ -12,7 +12,7 @@ public class UniversalPriceParser
 
        private Map<String, Character> priceTemplates;
 
-       public double getPrice(String rawPrice, String productId)
+       public float getPrice(String rawPrice, String productId)
        {
               Character decimalPointCharacter = priceTemplates.containsKey(productId) ? priceTemplates.get(productId) : '.';
               String cleanedPrice = removeAllNonNumberCharacters(rawPrice, decimalPointCharacter);
@@ -42,11 +42,11 @@ public class UniversalPriceParser
               return filtered.toString();
        }
 
-       private double parseCleanPrice(String price)
+       private float parseCleanPrice(String price)
        {
               try
               {
-                     return Double.parseDouble(price);
+                     return Float.parseFloat(price);
               }
               catch (Exception e)
               {
