@@ -451,8 +451,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               leftAxis.setTextColor(ColorTemplate.getHoloBlue());
               leftAxis.setDrawGridLines(true);
               leftAxis.setGranularityEnabled(true);
-              leftAxis.setAxisMinimum(0f);
-              leftAxis.setAxisMaximum(170f);
               leftAxis.setYOffset(-9f);
               leftAxis.setTextColor(Color.rgb(51, 174, 98));
 //              leftAxis.setTextColor(R.color.colorSpringGreen);
@@ -477,6 +475,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               List<ILineDataSet> dataSets = new ArrayList<>();
 
               LineDataSet set1 = new LineDataSet(values, "DataSet 1");
+
               set1.setAxisDependency(YAxis.AxisDependency.RIGHT);
 
               set1.setColor(ColorTemplate.getHoloBlue());
@@ -489,7 +488,11 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               set1.setHighLightColor(Color.rgb(244, 117, 117));
               set1.setDrawCircleHole(false);
 
+//              ProductSource source1 = new ProductSource(respectiveProduct.getName(), "Source 1", set1);
+//              dataSets.add(source1.getDataSet());
+
               dataSets.add(set1);
+
               // create a data object with the data sets
               LineData data = new LineData(dataSets);
               data.setValueTextColor(Color.WHITE);
