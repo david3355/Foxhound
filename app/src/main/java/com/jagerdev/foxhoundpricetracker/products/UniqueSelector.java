@@ -12,7 +12,9 @@ public class UniqueSelector<T>
               for (int i = 0; i < items.size(); i++)
               {
                      item = items.get(i);
-                     if (i == items.size()-1 || !item.equals(lastItem))
+                     if (i == items.size() - 1 || !item.equals(lastItem))
+                            unique.add(item);
+                     else if (item.equals(lastItem) && i < items.size() - 1 && !item.equals(items.get(i + 1)))
                             unique.add(item);
                      lastItem = item;
               }

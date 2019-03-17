@@ -45,6 +45,7 @@ dependencies {
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.21.0'
     compile group: 'org.nanohttpd', name: 'nanohttpd', version: '2.3.0'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
+    api 'com.google.guava:guava:27.1-android'
     compile('jager.pricetracker.engine:PriceTrackerEngine:1.0.0')
             {
                 exclude module: 'org.restlet.ext.json'

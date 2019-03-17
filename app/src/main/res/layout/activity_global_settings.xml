@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GlobalSettingsActivity">
+    tools:context=".GlobalSettingsActivity"
+    android:orientation="vertical"
+    android:padding="15dp">
 
-</android.support.constraint.ConstraintLayout>
+    <CheckBox
+        android:id="@+id/check_settings_use_cellular_data"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:text="Tracker can use cellular data"/>
+
+</LinearLayout>
