@@ -1,9 +1,12 @@
 package com.jagerdev.foxhoundpricetracker;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -19,6 +22,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.jagerdev.foxhoundpricetracker.products.Frequency;
+import com.jagerdev.foxhoundpricetracker.products.ProductRegisteredEvent;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 
 import controllers.exceptions.ImproperPathSelectorException;
@@ -30,7 +34,7 @@ import tracker.PriceTrackerManager;
 
 import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
 
-public class NewProductActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput
+public class NewProductActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, ProductRegisteredEvent
 {
        private ServiceRunHandler svcRunHandler;
        private PriceTrackerManager priceTrackerManager;
@@ -202,6 +206,13 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               final String productPrice = new_product_price.getText().toString();
               final String productInspectFreq = new_product_inspect_freq.getText().toString();
               final String productIFUnit = Frequency.UNITS[new_product_inspect_unit.getSelectedItemPosition()];
+
+              progress_new_product.setVisibility(View.VISIBLE);
+              trackNewProduct(priceTrackerManager, this, productName, productWebPath, productPrice, productInspectFreq, productIFUnit, this);
+       }
+
+       public static void trackNewProduct(final PriceTrackerManager priceTrackerManager, final Context context, final String productName, final String productWebPath, final String productPrice, final String productInspectFreq, final String productIFUnit, final ProductRegisteredEvent eventHandler)
+       {
               Thread t = new Thread(new Runnable()
               {
                      @Override
@@ -210,59 +221,68 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                             try
                             {
                                    priceTrackerManager.trackNewItem(productPrice, productWebPath, productName, productInspectFreq, productIFUnit);
-                                   showInfo(String.format("%s is added to tracked items: %s", productName, productPrice));
-                                   Intent main = new Intent(NewProductActivity.this, MainActivity.class);
-                                   main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                   startActivity(main);
+                                   showInfo(context, String.format("%s is added to tracked items: %s. Checking period: %s %s", productName, productPrice, productInspectFreq, productIFUnit));
+                                   eventHandler.onRegisteredSuccessfully();
                             } catch (ImproperPathSelectorException e)
                             {
-                                   showInfo(e.getMessage());
-                                   e.printStackTrace();
+                                   showInfo(context, e.getMessage());
                             } catch (SourcePageNotAvailableException e)
                             {
-                                   showInfo(e.getMessage());
-                                   e.printStackTrace();
+                                   showInfo(context, e.getMessage());
                             } catch (PathForProductNotFoundException e)
                             {
-                                   showInfo(e.getMessage());
-                                   e.printStackTrace();
+                                   showInfo(context, e.getMessage());
                             } catch (DatabaseException e)
                             {
-                                   showInfo(e.getMessage());
-                                   e.printStackTrace();
+                                   showInfo(context, e.getMessage());
                             } finally
                             {
-                                   runOnUiThread(new Runnable()
-                                   {
-                                          @Override
-                                          public void run()
-                                          {
-                                                 progress_new_product.setVisibility(View.VISIBLE);
-                                          }
-                                   });
+                                   eventHandler.onFinally();
                             }
                      }
               });
-
-              progress_new_product.setVisibility(View.VISIBLE);
               t.start();
        }
 
-       private void showInfo(final String message)
+       public static void showInfo(final Context context, final String message)
+       {
+              if (context != null && message != null)
+              {
+                     new Handler(Looper.getMainLooper()).post(new Runnable()
+                     {
+                            @Override
+                            public void run()
+                            {
+                                   Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                            }
+                     });
+              }
+       }
+
+       @Override
+       public void invalidInput(Object o, String s)
+       {
+              showInfo(this, String.format("INVALID INPUT for %s. Details: %s", o.toString(), s));
+       }
+
+       @Override
+       public void onRegisteredSuccessfully()
+       {
+              Intent main = new Intent(this, MainActivity.class);
+              main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+              this.startActivity(main);
+       }
+
+       @Override
+       public void onFinally()
        {
               runOnUiThread(new Runnable()
               {
                      @Override
                      public void run()
                      {
-                            Toast.makeText(NewProductActivity.this, message, Toast.LENGTH_LONG).show();
+                            progress_new_product.setVisibility(View.GONE);
                      }
               });
-       }
-
-       @Override
-       public void invalidInput(Object o, String s)
-       {
-              showInfo(String.format("INVALID INPUT for %s. Details: %s", o.toString(), s));
        }
 }

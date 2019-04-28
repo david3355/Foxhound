@@ -27,8 +27,8 @@
             <!--Icon of floating widget -->
             <ImageView
                 android:id="@+id/floating_pricetracker_widget"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_marginTop="8dp"
                 android:src="@drawable/foxhound_icon"
                 android:padding="1dp"
@@ -47,7 +47,7 @@
                 tools:ignore="ContentDescription"/>
         </RelativeLayout>
 
-        <!--View while view is expanded-->
+        <!-- Copy list: Not visible by default-->
         <LinearLayout
             android:id="@+id/expanded_property_copier"
             android:layout_width="wrap_content"
@@ -57,20 +57,31 @@
             android:padding="8dp"
             >
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+             <View
+                 android:layout_width="0dp"
+                 android:layout_height="0dp"
+                 android:layout_weight="1"/>
+
             <!--Back button-->
             <ImageView
                 android:id="@+id/floating_back_btn"
                 android:layout_width="21dp"
                 android:layout_height="21dp"
-                android:layout_gravity="end"
                 android:src="@drawable/back"
                 android:padding="2dp"
                 android:background="@drawable/floating_widget_background"
                 tools:ignore="ContentDescription"/>
-            
+
+            </LinearLayout>
+
             <LinearLayout
                 android:id="@+id/floatingmenu_get_name"
-                android:layout_width="170dp"
+                android:layout_width="@dimen/notif_settings_copymenu_width"
                 android:layout_height="35dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
@@ -97,7 +108,7 @@
 
             <LinearLayout
                 android:id="@+id/floatingmenu_get_url"
-                android:layout_width="170dp"
+                android:layout_width="@dimen/notif_settings_copymenu_width"
                 android:layout_height="35dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
@@ -124,7 +135,7 @@
 
             <LinearLayout
                 android:id="@+id/floatingmenu_get_price"
-                android:layout_width="170dp"
+                android:layout_width="@dimen/notif_settings_copymenu_width"
                 android:layout_height="35dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
@@ -150,26 +161,44 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/floatingmenu_go_to_app"
-                android:layout_width="170dp"
+                android:layout_width="@dimen/notif_settings_copymenu_width"
                 android:layout_height="35dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:background="@drawable/menu_default"
                 >
-                <ImageView
-                    android:layout_width="30dp"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/foxhound_icon"
-                    android:padding="5dp"
-                    android:layout_marginLeft="7dp"
+                <TextView
+                    android:id="@+id/floatingmenu_fast_register"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:textStyle="bold"
+                    android:layout_weight="0.5"
+                    android:gravity="center"
+                    android:background="@drawable/menu_default"
+                    android:layout_marginEnd="3dp"
+                    android:visibility="visible"
+                    android:text="Register"
+                    />
+
+                <ProgressBar
+                    android:id="@+id/progress_fast_register"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:padding="2dp"
+                    android:visibility="gone"
+                    android:layout_weight="0.5"
+                    android:layout_marginEnd="3dp"
+                    android:background="@drawable/menu_progressbar"
                     tools:ignore="ContentDescription"/>
 
                 <TextView
+                    android:id="@+id/floatingmenu_go_to_app"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
                     android:textStyle="bold"
-                    android:text="Go to register"
+                    android:layout_weight="0.5"
+                    android:gravity="center"
+                    android:background="@drawable/menu_default"
+                    android:text="Copy to app"
                     />
             </LinearLayout>
 

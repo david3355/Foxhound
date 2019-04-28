@@ -1,9 +1,29 @@
 package com.jagerdev.foxhoundpricetracker.products;
 
-public  class Frequency
+public class Frequency
 {
+       public enum UnitValues
+       {
+              SECONDS(0),
+              MINUTES(1),
+              HOURS(2),
+              DAYS(3);
+
+              UnitValues(int index)
+              {
+                     value = Frequency.UNITS[index];
+              }
+
+              private String value;
+
+              public String getValue()
+              {
+                     return value;
+              }
+       }
+
        public static final String[] UNITS = {"sec", "min", "hour", "day"};
-       public static final String[] UNITS_NAMES= {"seconds", "minutes", "hours", "days"};
+       public static final String[] UNITS_NAMES = {"seconds", "minutes", "hours", "days"};
 
        public Frequency(String unit, int frequency)
        {
