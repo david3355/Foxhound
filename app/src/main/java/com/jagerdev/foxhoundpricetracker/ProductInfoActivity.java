@@ -1,8 +1,10 @@
 package com.jagerdev.foxhoundpricetracker;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -68,6 +70,8 @@ import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
 public class ProductInfoActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, PriceTrackEvent, OnChartValueSelectedListener
 {
 
+       private static final String PREFS_NAME = "com.jagerdev.foxhoundpricetracker.FoxhoundPriceTracker";
+       private static final String PREF_PREFIX_KEY = "product_state_details_";
        private LinearLayout list_history;
        private PriceTrackerService priceTrackerService;
        private PriceTrackerManager priceTrackerManager;
@@ -87,6 +91,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private ProgressBar progress_product_refresh;
        private ImageButton btn_edit_time_plus, btn_edit_time_minus;
        private ImageView img_notif_settings_expand;
+       private LinearLayout panel_product_status;
+       private TextView txt_product_details_sign, txt_product_status_details;
 
        private LineChart chart;
 
@@ -166,6 +172,10 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               notification_settings_panel = findViewById(R.id.notification_settings_panel);
               img_notif_settings_expand = findViewById(R.id.img_notif_settings_expand);
 
+              panel_product_status = findViewById(R.id.panel_product_status);
+              txt_product_details_sign = findViewById(R.id.txt_product_details_sign);
+              txt_product_status_details = findViewById(R.id.txt_product_status_details);
+
               chart = findViewById(R.id.price_history_chart);
 
               btn_ack_alarms.setOnClickListener(this);
@@ -183,6 +193,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               label_product_path.setOnClickListener(this);
               label_product_price.setOnClickListener(this);
               label_product_name.setOnClickListener(this);
+              panel_product_status.setOnClickListener(this);
 
               // TODO set notificationSettings properties from loading database
 
@@ -209,6 +220,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               txt_product_actual_price.setText(respectiveProduct.getActualPrice());
               edit_product_inspect_freq.setText(String.valueOf(frequency.frequency));
               setAvailability(respectiveProduct.isAvailableNow() ? ProductStatus.AVAILABLE : ProductStatus.NOT_AVAILABLE);
+              txt_product_status_details.setText(readStateDetailsPrefs("Error details are not available yet!"));
+              if (!respectiveProduct.isAvailableNow()) txt_product_details_sign.setVisibility(View.VISIBLE);
+              else txt_product_details_sign.setVisibility(View.GONE);
 
               checkAlarms();
 
@@ -258,7 +272,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        }
 
        @Override
-       public void availabilityChanges(final boolean available, final Product product, Exception error)
+       public void availabilityChanges(final boolean available, final Product product, final Exception error)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
               runOnUiThread(new Runnable()
@@ -267,6 +281,15 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      public void run()
                      {
                             setAvailability(available ? ProductStatus.AVAILABLE : ProductStatus.NOT_AVAILABLE);
+                            txt_product_details_sign.setVisibility(available ? View.GONE : View.VISIBLE);
+                            if (!available)
+                            {
+                                   if (error != null) txt_product_status_details.setText(error.getMessage());
+                            }
+                            else
+                            {
+                                   txt_product_status_details.setVisibility(View.GONE);
+                            }
                      }
               });
        }
@@ -318,6 +341,26 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        }
 
+       public static void saveStateDetailsToPrefs(Context context, Product product, String errorDetails)
+       {
+              SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
+              prefs.putString(PREF_PREFIX_KEY + product.getId(), errorDetails);
+              prefs.apply();
+       }
+
+       private String readStateDetailsPrefs(String defaultValue)
+       {
+              SharedPreferences prefs = this.getSharedPreferences(PREFS_NAME, 0);
+              return prefs.getString(PREF_PREFIX_KEY + respectiveProduct.getId(), defaultValue);
+       }
+
+       private void deleteStateDetailsPrefs()
+       {
+              SharedPreferences.Editor prefs = this.getSharedPreferences(PREFS_NAME, 0).edit();
+              prefs.remove(PREF_PREFIX_KEY + respectiveProduct.getId());
+              prefs.apply();
+       }
+
        enum ProductStatus
        {
               AVAILABLE,
@@ -334,7 +377,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             break;
                      case NOT_AVAILABLE:
                             txt_product_status.setText("Not available");
-                            txt_product_status.setTextColor(Color.RED);
+                            txt_product_status.setTextColor(getResources().getColor(R.color.colorRed));
                             break;
               }
        }
@@ -436,6 +479,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               xAxis.setValueFormatter(new IAxisValueFormatter()
               {
                      private final SimpleDateFormat mFormat = new SimpleDateFormat("MMM dd", Locale.ENGLISH);
+
                      @Override
                      public String getFormattedValue(float value, AxisBase axis)
                      {
@@ -579,6 +623,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        {
               String productId = respectiveProduct.getId();
               priceTrackerManager.removeProduct(productId);
+              deleteStateDetailsPrefs();
               Toast.makeText(this, "Product removed.", Toast.LENGTH_SHORT).show();
        }
 
@@ -758,7 +803,18 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      case R.id.notification_settings_header:
                             toggleNotificationSettingsPanel();
                             break;
+                     case R.id.panel_product_status:
+                            toggleProductAvailabilityStatusDetails();
+                            break;
               }
+       }
+
+       private void toggleProductAvailabilityStatusDetails()
+       {
+              if (respectiveProduct.isAvailableNow()) return;
+              if (txt_product_status_details.getVisibility() == View.GONE)
+                     txt_product_status_details.setVisibility(View.VISIBLE);
+              else txt_product_status_details.setVisibility(View.GONE);
        }
 
        private void toggleNotificationSettingsPanel()
@@ -767,8 +823,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               {
                      img_notif_settings_expand.setRotation(180);
                      notification_settings_panel.setVisibility(View.VISIBLE);
-              }
-              else
+              } else
               {
                      img_notif_settings_expand.setRotation(0);
                      notification_settings_panel.setVisibility(View.GONE);

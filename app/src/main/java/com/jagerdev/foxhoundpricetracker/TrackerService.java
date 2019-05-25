@@ -110,6 +110,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        public void availabilityChanges(boolean available, Product product, Exception error)
        {
               int iconResource = available ? R.drawable.available : R.drawable.not_available;
+              ProductInfoActivity.saveStateDetailsToPrefs(this, product, error != null ? error.getMessage() : "");
               notificationHelper.sendNotification(this, product.getId(), product.getName(),  available ? "Available" : "Not available", iconResource, available);
        }
 
