@@ -13,6 +13,7 @@ public class ServiceRunHandler
        {
               activeUis = new ArrayList<>();
               svcInForeground = false;
+              delayMsec = DEFAULT_DELAY_MSEC;
        }
 
        private static ServiceRunHandler instance;
@@ -21,12 +22,22 @@ public class ServiceRunHandler
        final private List<String> activeUis;
        private boolean svcInForeground;
 
-       private final int DELAY_MSEC = 5000;
+       private final int DEFAULT_DELAY_MSEC = 4000;
+       private int delayMsec;
 
        public static ServiceRunHandler getInstance()
        {
               if (instance == null) instance = new ServiceRunHandler();
               return instance;
+       }
+
+       /**
+        * Sets the delay before sending PriceTracker service to foreground when no UI is active
+        * @param delayMsec Delay value in milliseconds
+        */
+       public void setDelayMsec(int delayMsec)
+       {
+              this.delayMsec = delayMsec;
        }
 
        public boolean hasActiveUI()
@@ -58,16 +69,20 @@ public class ServiceRunHandler
               {
                      activeUis.remove(activityName);
               }
-              Timer t = new Timer();
-              TimerTask foregrounder = new TimerTask()
+              if (delayMsec > 0)
               {
-                     @Override
-                     public void run()
+                     Timer t = new Timer();
+                     TimerTask foregrounder = new TimerTask()
                      {
-                            setServiceToForeground();
-                     }
-              };
-              t.schedule(foregrounder, DELAY_MSEC);
+                            @Override
+                            public void run()
+                            {
+                                   setServiceToForeground();
+                            }
+                     };
+                     t.schedule(foregrounder, delayMsec);
+              }
+              else setServiceToForeground();
        }
 
        public void registerService(TrackerService svc)

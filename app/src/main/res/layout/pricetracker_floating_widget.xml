@@ -27,8 +27,8 @@
             <!--Icon of floating widget -->
             <ImageView
                 android:id="@+id/floating_pricetracker_widget"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="53dp"
+                android:layout_height="53dp"
                 android:layout_marginTop="8dp"
                 android:src="@drawable/foxhound_icon"
                 android:padding="1dp"

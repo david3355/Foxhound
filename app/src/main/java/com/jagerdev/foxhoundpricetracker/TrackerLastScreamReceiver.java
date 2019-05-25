@@ -3,6 +3,7 @@ package com.jagerdev.foxhoundpricetracker;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
@@ -23,11 +24,17 @@ public class TrackerLastScreamReceiver extends BroadcastReceiver
        @Override
        public void onReceive(Context context, Intent intent)
        {
-              logger.info("Received that PriceTracker Service is stopped! Restarting service...");
-              Log.i(TrackerService.class.getSimpleName(), "PriceTracker Service Stops! Restarting service...");
-             if (!AndroidUtil.isServiceRunning(context, TrackerService.class)) context.startService(new Intent(context, TrackerService.class));
-             Intent svcIntent = new Intent(context, TrackerService.class);
-              svcIntent.putExtra(TrackerService.START_IN_FOREGROUND, true);
-              context.startService(svcIntent);
+             logger.info("Received that PriceTracker Service is stopped! Restarting service...");
+             Log.i(TrackerService.class.getSimpleName(), "PriceTracker Service is stopped! Restarting service...");
+             if (!AndroidUtil.isServiceRunning(context, TrackerService.class))
+             {
+                    Intent svcIntent = new Intent(context, TrackerService.class);
+                    svcIntent.putExtra(TrackerService.START_IN_FOREGROUND, true);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                    {
+                           context.startForegroundService(svcIntent);
+                    } else context.startService(svcIntent);
+                    logger.info("Foxhound started due to receiving last scream");
+             }
        }
 }

@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity
               setContentView(R.layout.activity_main);
               Toolbar toolbar = findViewById(R.id.toolbar);
               svcRunHandler = ServiceRunHandler.getInstance();
+              svcRunHandler.setDelayMsec(0);
 
               panel_webpage_address = findViewById(R.id.panel_webpage_address);
               txt_webpage_address = findViewById(R.id.txt_webpage_address);

@@ -310,6 +310,10 @@ public class FloatingCopyService extends Service implements View.OnClickListener
        {
               String clipboardText = AndroidUtil.getClipboardText(this);
               textHolder.setText(clipboardText);
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+              {
+                     textHolder.setTooltipText(clipboardText);
+              }
               newProductIntent.putExtra(key, clipboardText);
        }
 }
