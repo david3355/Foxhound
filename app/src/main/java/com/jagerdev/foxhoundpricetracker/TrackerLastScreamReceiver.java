@@ -25,7 +25,7 @@ public class TrackerLastScreamReceiver extends BroadcastReceiver
        public void onReceive(Context context, Intent intent)
        {
              logger.info("Received that PriceTracker Service is stopped! Restarting service...");
-             Log.i(TrackerService.class.getSimpleName(), "PriceTracker Service is stopped! Restarting service...");
+             Log.i(this.getClass().getSimpleName(), "PriceTracker Service is stopped! Restarting service...");
              if (!AndroidUtil.isServiceRunning(context, TrackerService.class))
              {
                     Intent svcIntent = new Intent(context, TrackerService.class);

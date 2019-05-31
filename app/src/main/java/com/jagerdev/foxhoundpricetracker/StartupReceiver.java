@@ -26,7 +26,7 @@ public class StartupReceiver extends BroadcastReceiver
               String action = intent.getAction();
               if(Intent.ACTION_BOOT_COMPLETED.equals(action))
               {
-                     Log.i(StartupReceiver.class.getName(), "Restart event received. Starting Foxhound");
+                     Log.i(this.getClass().getName(), "Restart event received. Starting Foxhound");
                      logger.info("Starting Foxhound after system start");
                      Toast.makeText(context, "Starting PriceTracker service", Toast.LENGTH_SHORT).show();
                      Intent svcIntent = new Intent(context, TrackerService.class);
