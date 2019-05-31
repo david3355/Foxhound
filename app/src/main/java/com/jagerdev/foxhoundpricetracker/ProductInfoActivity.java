@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,7 +53,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 import controllers.exceptions.ImproperPathSelectorException;
 import controllers.exceptions.PathForProductNotFoundException;
@@ -95,6 +95,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private TextView txt_product_details_sign, txt_product_status_details;
 
        private LineChart chart;
+       private UniversalPriceParser priceParser = new UniversalPriceParser();
 
        private LinearLayout notification_settings_header, notification_settings_panel;
 
@@ -259,6 +260,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        public void priceChanges(final String oldPrice, final String newPrice, final Product product)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
+              Log.i(this.getClass().getName(),String.format("Price changed for %s. New price: %s", product.getName(), newPrice));
               runOnUiThread(new Runnable()
               {
                      @Override
@@ -275,6 +277,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        public void availabilityChanges(final boolean available, final Product product, final Exception error)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
+              Log.i(this.getClass().getName(),String.format("Availability changed for %s. Available: %s", product.getName(), available));
               runOnUiThread(new Runnable()
               {
                      @Override
@@ -298,6 +301,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        public void productChecked(final Product product)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
+              Log.d(this.getClass().getName(),String.format("Product %s checked.", product.getName()));
               runOnUiThread(new Runnable()
               {
                      @Override
@@ -416,7 +420,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               UniqueSelector<ProductSnapshot> selector = new UniqueSelector<>();
               final List<ProductSnapshot> uniqueHistory = selector.getUniqueList(history);
 
-              initChart();
+              initChart(uniqueHistory);
               drawChart(uniqueHistory);
 
               Collections.sort(uniqueHistory, new ProductSnapshotComparator(false));
@@ -434,7 +438,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               });
        }
 
-       private void initChart()
+       private void initChart(List<ProductSnapshot> history)
        {
               // chart
               // no description text
@@ -474,6 +478,18 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               xAxis.setDrawGridLines(true);
               xAxis.setTextColor(Color.rgb(51, 174, 98));
 //              xAxis.setTextColor(R.color.colorSpringGreen);
+
+              float max = history.get(history.size()-1).getDateOfSnapshot().getMillis();
+              float min = history.get(0).getDateOfSnapshot().getMillis();
+
+              final int CHART_PADDING_PERCENT = 3;
+              if (history.size() > 1)
+              {
+                     float padding = (max - min) * (CHART_PADDING_PERCENT / 100f);
+                     xAxis.setAxisMaximum(max + padding);
+                     xAxis.setAxisMinimum(min - padding);
+              }
+
               xAxis.setCenterAxisLabels(true);
               xAxis.setGranularity(1f); // one hour
               xAxis.setValueFormatter(new IAxisValueFormatter()
@@ -483,8 +499,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      @Override
                      public String getFormattedValue(float value, AxisBase axis)
                      {
-                            long millis = TimeUnit.HOURS.toMillis((long) value);
-                            millis = (long) value;
+                            long millis = (long) value;
                             return mFormat.format(new Date(millis));
                      }
               });
@@ -507,7 +522,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        {
               ArrayList<Entry> values = new ArrayList<>();
 
-              UniversalPriceParser priceParser = new UniversalPriceParser();
               for (ProductSnapshot snapshot : uniqueHistory)
               {
                      float parsedPrice = priceParser.getPrice(snapshot.getPrice(), respectiveProduct.getId());
@@ -525,7 +539,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               set1.setColor(ColorTemplate.getHoloBlue());
               set1.setValueTextColor(ColorTemplate.getHoloBlue());
               set1.setLineWidth(1.5f);
-              set1.setDrawCircles(true);
+              set1.setDrawCircles(false);
               set1.setDrawValues(false);
               set1.setFillAlpha(65);
               set1.setFillColor(ColorTemplate.getHoloBlue());
@@ -544,7 +558,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
               // set data
               chart.setData(data);
-
+              chart.invalidate();
        }
 
        private void changeEditProductKeyProperties()
@@ -702,6 +716,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                                           public void run()
                                           {
                                                  progress_product_refresh.setVisibility(View.GONE);
+                                                 chart.notifyDataSetChanged();
+                                                 chart.invalidate();
                                           }
                                    });
                             } catch (DatabaseException e)
