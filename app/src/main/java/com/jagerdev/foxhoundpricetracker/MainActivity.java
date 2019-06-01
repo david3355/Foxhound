@@ -3,6 +3,7 @@ package com.jagerdev.foxhoundpricetracker;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import com.jagerdev.foxhoundpricetracker.products.ProductAdapter;
 import com.jagerdev.foxhoundpricetracker.products.ProductComparator;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
+import com.jagerdev.foxhoundpricetracker.utils.DbFileProvider;
 import com.jagerdev.foxhoundpricetracker.utils.NetworkUtil;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
@@ -33,6 +35,8 @@ import database.DatabaseException;
 import model.Product;
 import tracker.PriceTrackerService;
 import tracker.clientnotifier.PriceTrackEvent;
+
+import static com.jagerdev.foxhoundpricetracker.database.DBConstants.DATABASE_NAME;
 
 public class MainActivity extends AppCompatActivity
         implements OnInvalidInput, PriceTrackEvent, AdapterView.OnItemLongClickListener,
@@ -317,9 +321,27 @@ public class MainActivity extends AppCompatActivity
                      case R.id.search_bar_products:
                             search_bar_products.setVisibility(View.VISIBLE);
                             break;
+                     case R.id.export_products:
+                            shareDatabaseFile();
+                            break;
+                     case R.id.import_products:
+                            importProducts();
+                            break;
               }
 
               return super.onOptionsItemSelected(item);
+       }
+
+       private void shareDatabaseFile()
+       {
+              Uri uri = new DbFileProvider().getDatabaseURI(this);
+              String shareMessage = String.format("Backup %s via:", DATABASE_NAME);
+              AndroidUtil.shareFile(this, uri, shareMessage);
+       }
+
+       private void importProducts()
+       {
+              Toast.makeText(this, "Importing products is not implemented yet!", Toast.LENGTH_LONG).show();
        }
 
        @Override

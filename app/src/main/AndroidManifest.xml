@@ -81,6 +81,16 @@
             android:enabled="true"
             android:exported="false">
         </service>
+
+        <provider
+            android:name="com.jagerdev.foxhoundpricetracker.utils.DbFileProvider"
+            android:authorities="com.jagerdev.foxhoundpricetracker.dbfileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/filepaths" />
+        </provider>
     </application>
 
 </manifest>

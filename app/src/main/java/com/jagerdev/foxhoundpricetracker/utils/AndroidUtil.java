@@ -70,4 +70,13 @@ public class AndroidUtil
               Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
               context.startActivity(browserIntent);
        }
+
+       public static void shareFile(Context context, Uri fileURI, String shareMessage)
+       {
+              Intent intent = new Intent(Intent.ACTION_SEND);
+              intent.setType("application/octet-stream");
+              intent.putExtra(Intent.EXTRA_STREAM, fileURI);
+
+              context.startActivity(Intent.createChooser(intent, shareMessage));
+       }
 }

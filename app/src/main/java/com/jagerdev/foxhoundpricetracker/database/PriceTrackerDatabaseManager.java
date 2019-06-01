@@ -4,8 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.jagerdev.foxhoundpricetracker.utils.ExternalStorageHelper;
-
 /**
  * Created by Jager on 2016.02.08..
  */
@@ -223,26 +221,4 @@ class PriceTrackerDatabaseHelper extends SQLiteOpenHelper
               // db.execSQL(DBConstants.DATABASE_DROP_ALL);
               // db.execSQL(DBConstants.DATABASE_CREATE_ALL);
        }
-}
-
-
-class DBConstants
-{
-       public static String getDatabasePath(Context context)
-       {
-              if (ExternalStorageHelper.isStorageAccessible())
-              {
-                     if (DATABASE_PATH == null)
-                            DATABASE_PATH = ExternalStorageHelper.getPublicDatabasePath(context, DATABASE_NAME);
-                     return DATABASE_PATH;
-              }
-              return DATABASE_NAME;
-       }
-
-       public static final String DATABASE_NAME = "pricetracker.db";
-       public static String DATABASE_PATH = null;
-       public static final int DATABASE_VERSION = 1;
-
-//       public static String DATABASE_CREATE_ALL = PositionsTableDef.DATABASE_CREATE;
-//       public static String DATABASE_DROP_ALL = PositionsTableDef.DATABASE_DROP;
 }

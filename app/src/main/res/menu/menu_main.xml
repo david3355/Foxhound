@@ -24,4 +24,15 @@
         android:title="Refresh all products"
         android:icon="@drawable/refresh"
         app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/export_products"
+        android:title="Export products"
+        android:icon="@drawable/export"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/import_products"
+        android:title="Import products"
+        android:icon="@drawable/import_img"
+        app:showAsAction="ifRoom"/>
 </menu>
