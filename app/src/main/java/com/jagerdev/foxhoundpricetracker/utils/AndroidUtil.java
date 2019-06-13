@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
+import static com.jagerdev.foxhoundpricetracker.MainActivity.PICKFILE_REQUEST_CODE;
+
 public class AndroidUtil
 {
        public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
@@ -78,5 +80,12 @@ public class AndroidUtil
               intent.putExtra(Intent.EXTRA_STREAM, fileURI);
 
               context.startActivity(Intent.createChooser(intent, shareMessage));
+       }
+
+       public static  void selectFile(Activity context)
+       {
+              Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+              intent.setType("file/*.db");
+              context.startActivityForResult(intent, PICKFILE_REQUEST_CODE);
        }
 }

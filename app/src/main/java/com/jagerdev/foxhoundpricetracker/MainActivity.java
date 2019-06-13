@@ -1,7 +1,10 @@
 package com.jagerdev.foxhoundpricetracker;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -48,6 +51,8 @@ public class MainActivity extends AppCompatActivity
        private PriceTrackerService priceTrackerService;
        private ProductAdapter productAdapter;
        private ServiceRunHandler svcRunHandler;
+
+       public static int PICKFILE_REQUEST_CODE = 25000;
 
 //       private SwipeRefreshLayout product_swipe_refresh;
 
@@ -325,7 +330,7 @@ public class MainActivity extends AppCompatActivity
                             shareDatabaseFile();
                             break;
                      case R.id.import_products:
-                            importProducts();
+                            selectFileToImport();
                             break;
               }
 
@@ -339,9 +344,35 @@ public class MainActivity extends AppCompatActivity
               AndroidUtil.shareFile(this, uri, shareMessage);
        }
 
-       private void importProducts()
+       private void importProducts(String filePath)
        {
-              Toast.makeText(this, "Importing products is not implemented yet!", Toast.LENGTH_LONG).show();
+              // TODO
+       }
+
+       private void selectFileToImport()
+       {
+              AndroidUtil.selectFile(this);
+       }
+
+       private boolean validateDatabaseFile(String filePath)
+       {
+              return true; // TODO
+       }
+
+       @Override
+       protected void onActivityResult(int requestCode, int resultCode, Intent data)
+       {
+              if (requestCode == PICKFILE_REQUEST_CODE && resultCode == RESULT_OK)
+              {
+                     Uri chosenFile= data.getData();
+                     String filePath = chosenFile.getPath();
+                     if (validateDatabaseFile(filePath))
+                     {
+                            Toast.makeText(this, String.format("Importing products from: %s", filePath), Toast.LENGTH_SHORT).show();
+                            importProducts(filePath);
+                     }
+                     else Toast.makeText(this, String.format("Database file is not valid: %s", filePath), Toast.LENGTH_SHORT).show();
+              }
        }
 
        @Override
