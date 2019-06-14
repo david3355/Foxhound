@@ -81,7 +81,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
                             priceTrackerSvc.stop();
                      } catch (Exception e)
                      {
-                            Log.w(this.getClass().getName(), String.format("Error while stopping pricetracker serviece: %s", e.getMessage()));
+                            Log.w(this.getClass().getName(), String.format("Error while stopping pricetracker service: %s", e.getMessage()));
                      }
               }
               running = false;
@@ -109,11 +109,14 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        }
 
        @Override
-       public void availabilityChanges(boolean available, Product product, Exception error)
+       public void availabilityChecked(boolean previouslyAvailable, boolean available, Product product, Exception error)
        {
-              int iconResource = available ? R.drawable.available : R.drawable.not_available;
               ProductInfoActivity.saveStateDetailsToPrefs(this, product, error != null ? error.getMessage() : "");
-              notificationHelper.sendNotification(this, product.getId(), product.getName(),  available ? "Available" : "Not available", iconResource, available);
+              if (previouslyAvailable != available)
+              {
+                     int iconResource = available ? R.drawable.available : R.drawable.not_available;
+                     notificationHelper.sendNotification(this, product.getId(), product.getName(), available ? "Available" : "Not available", iconResource, available);
+              }
        }
 
        @Override

@@ -1,10 +1,7 @@
 package com.jagerdev.foxhoundpricetracker;
 
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -396,17 +393,20 @@ public class MainActivity extends AppCompatActivity
        }
 
        @Override
-       public void availabilityChanges(final boolean available, final Product product, Exception error)
+       public void availabilityChecked(final boolean previouslyAvailable, final boolean available, final Product product, Exception error)
        {
-              runOnUiThread(new Runnable()
+              if (previouslyAvailable != available)
               {
-                     @Override
-                     public void run()
+                     runOnUiThread(new Runnable()
                      {
-                            productAdapter.notifyDataSetChanged();
-                            Toast.makeText(MainActivity.this, String.format("%s became %s", product.getName(), available ? "available" : "not available"), Toast.LENGTH_SHORT).show();
-                     }
-              });
+                            @Override
+                            public void run()
+                            {
+                                   productAdapter.notifyDataSetChanged();
+                                   Toast.makeText(MainActivity.this, String.format("%s became %s", product.getName(), available ? "available" : "not available"), Toast.LENGTH_SHORT).show();
+                            }
+                     });
+              }
        }
 
        @Override

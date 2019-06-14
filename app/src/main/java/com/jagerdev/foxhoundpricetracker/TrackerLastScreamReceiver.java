@@ -25,16 +25,16 @@ public class TrackerLastScreamReceiver extends BroadcastReceiver
        public void onReceive(Context context, Intent intent)
        {
              logger.info("Received that PriceTracker Service is stopped! Restarting service...");
-             Log.i(this.getClass().getSimpleName(), "PriceTracker Service is stopped! Restarting service...");
              if (!AndroidUtil.isServiceRunning(context, TrackerService.class))
              {
+                    Log.i(this.getClass().getSimpleName(), "PriceTracker Service is stopped! Restarting service...");
                     Intent svcIntent = new Intent(context, TrackerService.class);
                     svcIntent.putExtra(TrackerService.START_IN_FOREGROUND, true);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     {
                            context.startForegroundService(svcIntent);
                     } else context.startService(svcIntent);
-                    logger.info("Foxhound started due to receiving last scream");
              }
+             else Log.i(this.getClass().getSimpleName(), "PriceTracker Service is still running!");
        }
 }

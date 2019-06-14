@@ -274,10 +274,10 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        }
 
        @Override
-       public void availabilityChanges(final boolean available, final Product product, final Exception error)
+       public void availabilityChecked(final boolean previouslyAvailable, final boolean available,  final Product product, final Exception error)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
-              Log.i(this.getClass().getName(),String.format("Availability changed for %s. Available: %s", product.getName(), available));
+              Log.d(this.getClass().getName(),String.format("Availability for %s. Available: %s", product.getName(), available));
               runOnUiThread(new Runnable()
               {
                      @Override
