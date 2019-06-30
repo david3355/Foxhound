@@ -106,33 +106,33 @@
                     android:layout_height="40dp"
                     android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="10dp"
-                    android:text="Status:"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="10dp"
+                        android:text="Status:"/>
 
-                <TextView
-                    android:id="@+id/txt_product_status"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="15dp"
-                    android:text="Not checked yet"
-                    android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/txt_product_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="15dp"
+                        android:text="Not checked yet"
+                        android:textStyle="bold"/>
 
-                <TextView
-                    android:id="@+id/txt_product_details_sign"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorRed"
-                    android:textStyle="bold"
-                    android:textAlignment="textEnd"
-                    android:layout_gravity="center_vertical"
-                    android:visibility="gone"
-                    android:text="Details ▼"
-                    tools:ignore="RtlCompat"/>
+                    <TextView
+                        android:id="@+id/txt_product_details_sign"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="Details ▼"
+                        android:textAlignment="textEnd"
+                        android:textColor="@color/colorRed"
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        tools:ignore="RtlCompat"/>
 
                 </LinearLayout>
 
@@ -140,10 +140,10 @@
                     android:id="@+id/txt_product_status_details"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorRed"
-                    android:padding="5dp"
-                    android:textSize="11sp"
                     android:background="#ffd0d0"
+                    android:padding="5dp"
+                    android:textColor="@color/colorRed"
+                    android:textSize="11sp"
                     android:visibility="gone"
                     />
 
@@ -281,10 +281,10 @@
                         style="@style/CustomEditTextTheme"
                         android:layout_width="100dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
+                        android:layout_marginTop="10dp"
                         android:backgroundTint="@color/colorSpringGreen"
                         android:gravity="center"
                         />
@@ -335,8 +335,8 @@
                 android:id="@+id/notification_settings_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:layout_marginBottom="10dp"
+                android:gravity="center"
                 android:orientation="horizontal">
 
                 <TextView
