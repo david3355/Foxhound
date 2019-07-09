@@ -16,7 +16,8 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.6"
-            android:text="price changes"/>
+            android:textStyle="bold"
+            android:text="every time when price changes"/>
 
 
     </LinearLayout>
@@ -34,7 +35,7 @@
         android:layout_height="30dp"
         android:layout_gravity="center_vertical"
         android:layout_weight="0.6"
-        android:text="price goes above"/>
+        android:text="when price goes above"/>
 
     <EditText
         android:id="@+id/edit_notification_price_goes_above"
@@ -46,6 +47,7 @@
         android:layout_marginEnd="@dimen/notif_settings_margin_end"
         android:textColor="@color/colorNotifSettingsValue"
         android:maxLines="1"
+        android:inputType="number"
         android:background="@drawable/default_foxhound_background"/>
 
     </LinearLayout>
@@ -62,7 +64,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.6"
-            android:text="price goes below"/>
+            android:text="when price goes below"/>
 
         <EditText
             android:id="@+id/edit_notification_price_goes_below"
@@ -74,6 +76,7 @@
             android:layout_marginEnd="@dimen/notif_settings_margin_end"
             android:textColor="@color/colorNotifSettingsValue"
             android:maxLines="1"
+            android:inputType="number"
             android:background="@drawable/default_foxhound_background"/>
 
     </LinearLayout>
@@ -91,7 +94,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.6"
-            android:text="price increases with"/>
+            android:text="when price increases with"/>
 
         <EditText
             android:id="@+id/edit_notification_price_increases_with"
@@ -102,6 +105,7 @@
             android:layout_weight="0.4"
             android:textColor="@color/colorNotifSettingsValue"
             android:maxLines="1"
+            android:inputType="number"
             android:background="@drawable/default_foxhound_background"/>
 
         <TextView
@@ -127,7 +131,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.6"
-            android:text="price decreases with"/>
+            android:text="when price decreases with"/>
 
         <EditText
             android:id="@+id/edit_notification_price_decreases_with"
@@ -138,6 +142,7 @@
             android:layout_weight="0.4"
             android:textColor="@color/colorNotifSettingsValue"
             android:maxLines="1"
+            android:inputType="number"
             android:background="@drawable/default_foxhound_background"/>
 
         <TextView
@@ -163,7 +168,9 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.6"
-            android:text="availability changes"/>
+            android:textStyle="bold"
+            android:layout_marginTop="15dp"
+            android:text="every time when availability changes"/>
 
     </LinearLayout>
 
@@ -179,7 +186,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.6"
-            android:text="product becomes available"/>
+            android:text="when product becomes available"/>
 
     </LinearLayout>
 
@@ -195,7 +202,7 @@
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_weight="0.6"
-            android:text="product becomes unavailable"/>
+            android:text="when product becomes unavailable"/>
 
     </LinearLayout>
 

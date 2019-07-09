@@ -17,11 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -71,7 +73,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 {
 
        private static final String PREFS_NAME = "com.jagerdev.foxhoundpricetracker.FoxhoundPriceTracker";
-       private static final String PREF_PREFIX_KEY = "product_state_details_";
+       public static final String STATE_DETAILS_PREF_PREFIX_KEY = "product_state_details_";
+       public static final String NOTIF_PREF_PREFIX_KEY = "notif_pref_details_";
        private LinearLayout list_history;
        private PriceTrackerService priceTrackerService;
        private PriceTrackerManager priceTrackerManager;
@@ -90,14 +93,34 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private ImageButton btn_ack_alarms;
        private ProgressBar progress_product_refresh;
        private ImageButton btn_edit_time_plus, btn_edit_time_minus;
-       private ImageView img_notif_settings_expand;
+       private ImageView img_notif_settings_expand, img_parse_settings_expand;
        private LinearLayout panel_product_status;
        private TextView txt_product_details_sign, txt_product_status_details;
 
        private LineChart chart;
-       private UniversalPriceParser priceParser = new UniversalPriceParser();
+       private UniversalPriceParser priceParser = UniversalPriceParser.getInstance();
 
-       private LinearLayout notification_settings_header, notification_settings_panel;
+       private LinearLayout notification_settings_header, notification_settings_panel, parse_settings_header, parse_settings_panel;
+
+       private CheckBox check_notification_price_changes;
+       private CheckBox check_notification_price_goes_above;
+       private EditText edit_notification_price_goes_above;
+       private CheckBox check_notification_price_goes_below;
+       private EditText edit_notification_price_goes_below;
+       private CheckBox check_notification_price_increases_with;
+       private EditText edit_notification_price_increases_with;
+       private CheckBox check_notification_price_decreases_with;
+       private EditText edit_notification_price_decreases_with;
+       private CheckBox check_notification_availability_changes;
+       private CheckBox check_notification_product_becomes_available;
+       private CheckBox check_notification_product_becomes_unavailable;
+
+       private RadioButton option_predefined_separator, option_custom_separator, option_auto_separator;
+       private Spinner dropdown_delimiters;
+       private EditText edit_custom_separator;
+       private Button btn_parse_preview;
+
+       private TextView txt_price_integer_part, txt_price_fraction_part;
 
        @Override
        protected void onResume()
@@ -173,9 +196,36 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               notification_settings_panel = findViewById(R.id.notification_settings_panel);
               img_notif_settings_expand = findViewById(R.id.img_notif_settings_expand);
 
+              parse_settings_header = findViewById(R.id.parse_settings_header);
+              parse_settings_header.setOnClickListener(this);
+              parse_settings_panel = findViewById(R.id.parse_settings_panel);
+              img_parse_settings_expand = findViewById(R.id.img_parse_settings_expand);
+
               panel_product_status = findViewById(R.id.panel_product_status);
               txt_product_details_sign = findViewById(R.id.txt_product_details_sign);
               txt_product_status_details = findViewById(R.id.txt_product_status_details);
+
+              check_notification_price_changes = findViewById(R.id.check_notification_price_changes);
+              check_notification_price_goes_above = findViewById(R.id.check_notification_price_goes_above);
+              edit_notification_price_goes_above = findViewById(R.id.edit_notification_price_goes_above);
+              check_notification_price_goes_below = findViewById(R.id.check_notification_price_goes_below);
+              edit_notification_price_goes_below = findViewById(R.id.edit_notification_price_goes_below);
+              check_notification_price_increases_with = findViewById(R.id.check_notification_price_increases_with);
+              edit_notification_price_increases_with = findViewById(R.id.edit_notification_price_increases_with);
+              check_notification_price_decreases_with = findViewById(R.id.check_notification_price_decreases_with);
+              edit_notification_price_decreases_with = findViewById(R.id.edit_notification_price_decreases_with);
+              check_notification_availability_changes = findViewById(R.id.check_notification_availability_changes);
+              check_notification_product_becomes_available = findViewById(R.id.check_notification_product_becomes_available);
+              check_notification_product_becomes_unavailable = findViewById(R.id.check_notification_product_becomes_unavailable);
+
+              txt_price_integer_part = findViewById(R.id.txt_price_integer_part);
+              txt_price_fraction_part = findViewById(R.id.txt_price_fraction_part);
+              option_predefined_separator = findViewById(R.id.option_predefined_separator);
+              option_custom_separator = findViewById(R.id.option_custom_separator);
+              option_auto_separator = findViewById(R.id.option_auto_separator);
+              btn_parse_preview = findViewById(R.id.btn_parse_preview);
+              dropdown_delimiters = findViewById(R.id.dropdown_delimiters);
+              edit_custom_separator = findViewById(R.id.edit_custom_separator);
 
               chart = findViewById(R.id.price_history_chart);
 
@@ -195,6 +245,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               label_product_price.setOnClickListener(this);
               label_product_name.setOnClickListener(this);
               panel_product_status.setOnClickListener(this);
+
+              btn_parse_preview.setOnClickListener(this);
 
               // TODO set notificationSettings properties from loading database
 
@@ -221,9 +273,14 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               txt_product_actual_price.setText(respectiveProduct.getActualPrice());
               edit_product_inspect_freq.setText(String.valueOf(frequency.frequency));
               setAvailability(respectiveProduct.isAvailableNow() ? ProductStatus.AVAILABLE : ProductStatus.NOT_AVAILABLE);
-              txt_product_status_details.setText(readStateDetailsPrefs("Error details are not available yet!"));
-              if (!respectiveProduct.isAvailableNow()) txt_product_details_sign.setVisibility(View.VISIBLE);
+              txt_product_status_details.setText(readStateDetailsPrefs(STATE_DETAILS_PREF_PREFIX_KEY,"Error details are not available yet!"));
+              if (!respectiveProduct.isAvailableNow())
+                     txt_product_details_sign.setVisibility(View.VISIBLE);
               else txt_product_details_sign.setVisibility(View.GONE);
+
+              setPriceParts(respectiveProduct.getActualPrice(), respectiveProduct.getDecimalSeparator());
+              loadNotificationSettings(respectiveProduct);
+              loadSeparatorSettings(respectiveProduct);
 
               checkAlarms();
 
@@ -234,6 +291,52 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
               list_history = findViewById(R.id.list_history);
               edit_product_name.requestFocus();
+       }
+
+       private String textOrEmpty(Object txt)
+       {
+              return txt != null ? txt.toString() : "";
+       }
+
+       private void loadNotificationSettings(Product product)
+       {
+              check_notification_price_changes.setChecked(product.notifyWhenPriceChanges() != null && product.notifyWhenPriceChanges());
+              check_notification_price_goes_above.setChecked(product.getNotifyWhenPriceGoesAbove() != null);
+              edit_notification_price_goes_above.setText(textOrEmpty(product.getNotifyWhenPriceGoesAbove()));
+              check_notification_price_goes_below.setChecked(product.getNotifyWhenPriceGoesBelow() != null);
+              edit_notification_price_goes_below.setText(textOrEmpty(product.getNotifyWhenPriceGoesBelow()));
+              check_notification_price_increases_with.setChecked(product.getNotifyWhenPriceIncreasesWith() != null);
+              edit_notification_price_increases_with.setText(textOrEmpty(product.getNotifyWhenPriceIncreasesWith()));
+              check_notification_price_decreases_with.setChecked(product.getNotifyWhenPriceDecreasesWith() != null);
+              edit_notification_price_decreases_with.setText(textOrEmpty(product.getNotifyWhenPriceDecreasesWith()));
+
+              check_notification_availability_changes.setChecked(product.notifyWhenAvailabilityChanges() != null && product.notifyWhenAvailabilityChanges());
+              check_notification_product_becomes_available.setChecked(product.notifyWhenAvailable() != null && product.notifyWhenAvailable());
+              check_notification_product_becomes_unavailable.setChecked(product.notifyWhenUnavailable() != null && product.notifyWhenUnavailable());
+       }
+
+       private void loadSeparatorSettings(Product product)
+       {
+              if (product.getDecimalSeparator() == null)
+              {
+                     option_auto_separator.setChecked(true);
+              }
+              else
+              {
+                     option_predefined_separator.setChecked(true);
+                     switch (product.getDecimalSeparator())
+                     {
+                            case '.':
+                                   dropdown_delimiters.setSelection(0);
+                                   break;
+                            case ',':
+                                   dropdown_delimiters.setSelection(1);
+                                   break;
+                                   default:
+                                          option_custom_separator.setChecked(true);
+                                          edit_custom_separator.setText(product.getDecimalSeparator().toString());
+                     }
+              }
        }
 
        private void checkAlarms()
@@ -260,7 +363,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        public void priceChanges(final String oldPrice, final String newPrice, final Product product)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
-              Log.i(this.getClass().getName(),String.format("Price changed for %s. New price: %s", product.getName(), newPrice));
+              Log.i(this.getClass().getName(), String.format("Price changed for %s. New price: %s", product.getName(), newPrice));
               runOnUiThread(new Runnable()
               {
                      @Override
@@ -269,15 +372,16 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             checkAlarms();
                             txt_product_actual_price.setText(newPrice);
                             edit_product_price.setText(newPrice);
+                            setPriceParts(newPrice, product.getDecimalSeparator());
                      }
               });
        }
 
        @Override
-       public void availabilityChecked(final boolean previouslyAvailable, final boolean available,  final Product product, final Exception error)
+       public void availabilityChecked(final boolean previouslyAvailable, final boolean available, final Product product, final Exception error)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
-              Log.d(this.getClass().getName(),String.format("Availability for %s. Available: %s", product.getName(), available));
+              Log.d(this.getClass().getName(), String.format("Availability for %s. Available: %s", product.getName(), available));
               runOnUiThread(new Runnable()
               {
                      @Override
@@ -287,9 +391,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             txt_product_details_sign.setVisibility(available ? View.GONE : View.VISIBLE);
                             if (!available)
                             {
-                                   if (error != null) txt_product_status_details.setText(error.getMessage());
-                            }
-                            else
+                                   if (error != null)
+                                          txt_product_status_details.setText(error.getMessage());
+                            } else
                             {
                                    txt_product_status_details.setVisibility(View.GONE);
                             }
@@ -301,7 +405,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        public void productChecked(final Product product)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
-              Log.d(this.getClass().getName(),String.format("Product %s checked.", product.getName()));
+              Log.d(this.getClass().getName(), String.format("Product %s checked.", product.getName()));
               runOnUiThread(new Runnable()
               {
                      @Override
@@ -345,23 +449,23 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        }
 
-       public static void saveStateDetailsToPrefs(Context context, Product product, String errorDetails)
+       public static void saveStateDetailsToPrefs(String prefKey, Context context, Product product, String errorDetails)
        {
               SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
-              prefs.putString(PREF_PREFIX_KEY + product.getId(), errorDetails);
+              prefs.putString(prefKey + product.getId(), errorDetails);
               prefs.apply();
        }
 
-       private String readStateDetailsPrefs(String defaultValue)
+       private String readStateDetailsPrefs(String prefKey, String defaultValue)
        {
               SharedPreferences prefs = this.getSharedPreferences(PREFS_NAME, 0);
-              return prefs.getString(PREF_PREFIX_KEY + respectiveProduct.getId(), defaultValue);
+              return prefs.getString(prefKey + respectiveProduct.getId(), defaultValue);
        }
 
-       private void deleteStateDetailsPrefs()
+       private void deleteStateDetailsPrefs(String prefKey)
        {
               SharedPreferences.Editor prefs = this.getSharedPreferences(PREFS_NAME, 0).edit();
-              prefs.remove(PREF_PREFIX_KEY + respectiveProduct.getId());
+              prefs.remove(prefKey + respectiveProduct.getId());
               prefs.apply();
        }
 
@@ -384,6 +488,16 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             txt_product_status.setTextColor(getResources().getColor(R.color.colorRed));
                             break;
               }
+       }
+
+       private void setPriceParts(String priceString, Character decimalSeparator)
+       {
+              double parsedPrice = priceParser.getPrice(priceString, decimalSeparator);
+              int integerPart = (int) parsedPrice;
+              double fractionPart = parsedPrice - integerPart;
+              txt_price_integer_part.setText(String.valueOf(integerPart));
+              String fractionString = String.valueOf(fractionPart);
+              txt_price_fraction_part.setText(fractionString.substring(2, fractionString.length()));
        }
 
        public static Frequency convertInspectFrequency(int inspectFrequencySeconds)
@@ -479,7 +593,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               xAxis.setTextColor(Color.rgb(51, 174, 98));
 //              xAxis.setTextColor(R.color.colorSpringGreen);
 
-              float max = history.get(history.size()-1).getDateOfSnapshot().getMillis();
+              float max = history.get(history.size() - 1).getDateOfSnapshot().getMillis();
               float min = history.get(0).getDateOfSnapshot().getMillis();
 
               final int CHART_PADDING_PERCENT = 3;
@@ -524,8 +638,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
               for (ProductSnapshot snapshot : uniqueHistory)
               {
-                     float parsedPrice = priceParser.getPrice(snapshot.getPrice(), respectiveProduct.getId());
-                     Entry entry = new Entry(snapshot.getDateOfSnapshot().getMillis(), parsedPrice);
+                     double parsedPrice = priceParser.getPrice(snapshot.getPrice(), respectiveProduct.getDecimalSeparator());
+                     Entry entry = new Entry(snapshot.getDateOfSnapshot().getMillis(), (float) parsedPrice);
                      values.add(entry);
               }
 
@@ -578,14 +692,52 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               txt_product_url.setVisibility(View.VISIBLE);
        }
 
+       private Character getManualDecimalSeparator()
+       {
+              if (option_custom_separator.isChecked())
+              {
+                     return edit_custom_separator.getText().toString().charAt(0);
+              } else if (option_predefined_separator.isChecked())
+              {
+                     switch (dropdown_delimiters.getSelectedItemPosition())
+                     {
+                            case 1:
+                                   return ',';
+                            case 0:
+                            default:
+                                   return '.';
+                     }
+              } else return null; // option_auto_separator
+       }
+
        private void saveProduct()
        {
               String productName = edit_product_name.getText().toString();
               String inspectFreq = edit_product_inspect_freq.getText().toString();
               String ifUnit = Frequency.UNITS[edit_product_inspect_unit.getSelectedItemPosition()];
+
+              Double priceGoesAboveLimit, priceGoesBelowLimit, priceIncreasePercentLimit, priceDecreasePercentLimit;
+              priceGoesAboveLimit = priceGoesBelowLimit = priceIncreasePercentLimit = priceDecreasePercentLimit = null;
+              Boolean notifyIfPriceChanges = check_notification_price_changes.isChecked();
+              if (check_notification_price_goes_above.isChecked())
+                     priceGoesAboveLimit = Double.parseDouble(edit_notification_price_goes_above.getText().toString());
+              if (check_notification_price_goes_below.isChecked())
+                     priceGoesBelowLimit = Double.parseDouble(edit_notification_price_goes_below.getText().toString());
+              if (check_notification_price_increases_with.isChecked())
+                     priceIncreasePercentLimit = Double.parseDouble(edit_notification_price_increases_with.getText().toString());
+              if (check_notification_price_decreases_with.isChecked())
+                     priceDecreasePercentLimit = Double.parseDouble(edit_notification_price_decreases_with.getText().toString());
+              Boolean notifyIfAvailabilityChanges = check_notification_availability_changes.isChecked();
+              Boolean notifyIfProductAvailable = check_notification_product_becomes_available.isChecked();
+              Boolean notifyIfProductUnavailable = check_notification_product_becomes_unavailable.isChecked();
+
+              Character manualDecimalSeparator = getManualDecimalSeparator();
+
               try
               {
-                     priceTrackerManager.saveProduct(respectiveProduct.getId(), productName, inspectFreq, ifUnit);
+                     priceTrackerManager.saveProduct(respectiveProduct.getId(), productName, inspectFreq, ifUnit,
+                             notifyIfPriceChanges, priceGoesAboveLimit, priceGoesBelowLimit, priceIncreasePercentLimit, priceDecreasePercentLimit, notifyIfAvailabilityChanges, notifyIfProductAvailable, notifyIfProductUnavailable, manualDecimalSeparator);
+                     setPriceParts(respectiveProduct.getActualPrice(), respectiveProduct.getDecimalSeparator());
                      showInfo(String.format("Product saved: %s", productName));
               } catch (DatabaseException e)
               {
@@ -637,7 +789,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        {
               String productId = respectiveProduct.getId();
               priceTrackerManager.removeProduct(productId);
-              deleteStateDetailsPrefs();
+              deleteStateDetailsPrefs(STATE_DETAILS_PREF_PREFIX_KEY);
               Toast.makeText(this, "Product removed.", Toast.LENGTH_SHORT).show();
        }
 
@@ -819,9 +971,14 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      case R.id.notification_settings_header:
                             toggleNotificationSettingsPanel();
                             break;
+                     case R.id.parse_settings_header:
+                            toggleParseSettingsPanel();
+                            break;
                      case R.id.panel_product_status:
                             toggleProductAvailabilityStatusDetails();
                             break;
+                     case R.id.btn_parse_preview:
+                            setPriceParts(respectiveProduct.getActualPrice(), getManualDecimalSeparator());
               }
        }
 
@@ -831,6 +988,19 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               if (txt_product_status_details.getVisibility() == View.GONE)
                      txt_product_status_details.setVisibility(View.VISIBLE);
               else txt_product_status_details.setVisibility(View.GONE);
+       }
+
+       private void toggleParseSettingsPanel()
+       {
+              if (parse_settings_panel.getVisibility() == View.GONE)
+              {
+                     img_parse_settings_expand.setRotation(180);
+                     parse_settings_panel.setVisibility(View.VISIBLE);
+              } else
+              {
+                     img_parse_settings_expand.setRotation(0);
+                     parse_settings_panel.setVisibility(View.GONE);
+              }
        }
 
        private void toggleNotificationSettingsPanel()

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/option_auto_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Use automatic separator"/>
+
+        <RadioButton
+            android:id="@+id/option_predefined_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose a delimiter:"/>
+
+        <Spinner
+            android:id="@+id/dropdown_delimiters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:entries="@array/array_decimal_separators"
+            android:textSize="16sp">
+        </Spinner>
+
+        <RadioButton
+            android:id="@+id/option_custom_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add custom delimiter:"/>
+
+        <EditText
+            android:id="@+id/edit_custom_separator"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginStart="30dp"
+            android:hint="Custom delimiter"
+            android:maxLength="1">
+        </EditText>
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btn_parse_preview"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="10dp"
+        android:background="@drawable/button_default"
+        android:paddingEnd="15dp"
+        android:paddingStart="15dp"
+        android:text="Parse preview"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:padding="7dp"
+        android:textSize="16sp"
+        android:text="Parsed price preview:"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_horizontal"
+        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/default_foxhound_background"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/txt_price_integer_part"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="#d7ffd5"
+            android:gravity="center_vertical"
+            android:padding="2dp"
+            android:textSize="25sp"
+            android:tooltipText="Integer part"
+            android:text="52121000"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:text="."
+            android:textSize="25sp"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/txt_price_fraction_part"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:background="#dee3ff"
+            android:gravity="center_vertical"
+            android:padding="2dp"
+            android:textSize="25sp"
+            android:tooltipText="Fractional part"
+            android:text="2352"/>
+    </LinearLayout>
+
+
+</LinearLayout>

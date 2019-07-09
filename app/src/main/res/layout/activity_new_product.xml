@@ -107,6 +107,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
                     android:gravity="center"
+                    android:inputType="number"
                     android:backgroundTint="@color/colorSpringGreen"
                     android:textCursorDrawable="@drawable/cursor"/>
 

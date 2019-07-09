@@ -1,34 +1,65 @@
 package com.jagerdev.foxhoundpricetracker.products;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class UniversalPriceParser
 {
        public UniversalPriceParser()
        {
-              priceTemplates = new HashMap<>();
        }
 
-       private Map<String, Character> priceTemplates;
+       private static final char MAIN_DECIMAL_POINT = '.';
+       private static UniversalPriceParser instance;
 
-       public float getPrice(String rawPrice, String productId)
+       public static UniversalPriceParser getInstance()
        {
-              Character decimalPointCharacter = priceTemplates.containsKey(productId) ? priceTemplates.get(productId) : '.';
-              String cleanedPrice = removeAllNonNumberCharacters(rawPrice, decimalPointCharacter);
+              if (instance == null)
+                     instance = new UniversalPriceParser();
+              return instance;
+       }
+
+       public double getPrice(String rawPrice, Character decimalPointSeparatorCharacter)
+       {
+              if (decimalPointSeparatorCharacter == null)
+                     decimalPointSeparatorCharacter = findOutDecimalCharacter(rawPrice);
+              String cleanedPrice = removeAllNonNumberCharacters(rawPrice, decimalPointSeparatorCharacter);
               return parseCleanPrice(cleanedPrice);
        }
 
-       private String removeAllNonNumberCharacters(String rawPrice, char decimalPointCharacter)
+       /**
+        * Rules: If only either , or . character is present in price, then it will
+        * be chosen as decimal point If both , and . characters are present, then
+        * the character with the greatest index will be chosen, because decimal
+        * point is the closest to the end of the price If none of the separator
+        * characters is present, the returns null.
+        *
+        * @param rawPrice
+        * @return
+        */
+       private Character findOutDecimalCharacter(String rawPrice)
+       {
+              char[] allowedDelimiters =
+                      { ',', MAIN_DECIMAL_POINT };
+              int index;
+              int maxDelimiterIndex = -1;
+
+              for (int i = 0; i < allowedDelimiters.length; i++)
+              {
+                     index = rawPrice.indexOf(allowedDelimiters[i]);
+                     if (index > maxDelimiterIndex)
+                            maxDelimiterIndex = index;
+              }
+              if (maxDelimiterIndex == -1)
+                     return null;
+              return rawPrice.charAt(maxDelimiterIndex);
+       }
+
+       private String removeAllNonNumberCharacters(String rawPrice, Character decimalPointCharacter)
        {
               StringBuilder filtered = new StringBuilder();
-//              char[] allowedDelimiters = {',', '.'};
               for (int i = 0; i < rawPrice.length(); i++)
               {
                      char c = rawPrice.charAt(i);
-//                     if (Arrays.asList(allowedDelimiters).contains(c))
-                     if (c == decimalPointCharacter)
-                            filtered.append(c);
+                     if (decimalPointCharacter != null && c == decimalPointCharacter)
+                            filtered.append(MAIN_DECIMAL_POINT);
                      else
                             for (int numchar = 0; numchar <= 9; numchar++)
                             {
@@ -42,13 +73,12 @@ public class UniversalPriceParser
               return filtered.toString();
        }
 
-       private float parseCleanPrice(String price)
+       private double parseCleanPrice(String price)
        {
               try
               {
-                     return Float.parseFloat(price);
-              }
-              catch (Exception e)
+                     return Double.parseDouble(price);
+              } catch (Exception e)
               {
                      return 0;
               }

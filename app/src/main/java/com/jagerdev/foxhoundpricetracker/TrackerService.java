@@ -6,6 +6,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.jagerdev.foxhoundpricetracker.products.NotificationConfirmer;
 import com.jagerdev.foxhoundpricetracker.utils.NotificationHelper;
 import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
 
@@ -105,14 +106,17 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        @Override
        public void priceChanges(String oldPrice, String newPrice, Product product)
        {
-              notificationHelper.sendNotification(this, product.getId(), product.getName(), String.format("New price: %s", newPrice), R.drawable.price_change, false);
+              if (NotificationConfirmer.shouldSendPriceUpdateNotification(product, oldPrice, newPrice))
+              {
+                     notificationHelper.sendNotification(this, product.getId(), product.getName(), String.format("New price: %s", newPrice), R.drawable.price_change, false);
+              }
        }
 
        @Override
        public void availabilityChecked(boolean previouslyAvailable, boolean available, Product product, Exception error)
        {
-              ProductInfoActivity.saveStateDetailsToPrefs(this, product, error != null ? error.getMessage() : "");
-              if (previouslyAvailable != available)
+              ProductInfoActivity.saveStateDetailsToPrefs(ProductInfoActivity.STATE_DETAILS_PREF_PREFIX_KEY, this, product, error != null ? error.getMessage() : "");
+              if (previouslyAvailable != available && NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, available))
               {
                      int iconResource = available ? R.drawable.available : R.drawable.not_available;
                      notificationHelper.sendNotification(this, product.getId(), product.getName(), available ? "Available" : "Not available", iconResource, available);

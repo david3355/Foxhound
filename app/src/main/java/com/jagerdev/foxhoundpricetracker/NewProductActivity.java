@@ -45,6 +45,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
        private Spinner new_product_inspect_unit;
        private ProgressBar progress_new_product;
        private ImageButton btn_time_plus, btn_time_minus;
+       private Button btn_track_product;
 
        public final static String COPY_NAME = "copy_name";
        public final static String COPY_URL = "copy_url";
@@ -63,7 +64,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
 
               svcRunHandler = ServiceRunHandler.getInstance();
 
-              Button btn_track_product = findViewById(R.id.btn_track_product);
+              btn_track_product = findViewById(R.id.btn_track_product);
               new_product_name = findViewById(R.id.new_product_name);
               new_product_path = findViewById(R.id.new_product_path);
               new_product_price = findViewById(R.id.new_product_price);
@@ -208,6 +209,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               final String productIFUnit = Frequency.UNITS[new_product_inspect_unit.getSelectedItemPosition()];
 
               progress_new_product.setVisibility(View.VISIBLE);
+              btn_track_product.setEnabled(false);
               trackNewProduct(priceTrackerManager, this, productName, productWebPath, productPrice, productInspectFreq, productIFUnit, this);
        }
 
@@ -282,6 +284,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                      public void run()
                      {
                             progress_new_product.setVisibility(View.GONE);
+                            btn_track_product.setEnabled(true);
                      }
               });
        }
