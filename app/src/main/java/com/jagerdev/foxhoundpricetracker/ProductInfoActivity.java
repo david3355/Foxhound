@@ -534,6 +534,18 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               UniqueSelector<ProductSnapshot> selector = new UniqueSelector<>();
               final List<ProductSnapshot> uniqueHistory = selector.getUniqueList(history);
 
+              // On Android 6, init and draw works only like this:
+//              runOnUiThread(new Runnable()
+//              {
+//                     @Override
+//                     public void run()
+//                     {
+//                            initChart(uniqueHistory);
+//                            drawChart(uniqueHistory);
+//                     }
+//              });
+
+              // TODO fix this on Android 6
               initChart(uniqueHistory);
               drawChart(uniqueHistory);
 

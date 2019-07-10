@@ -60,7 +60,7 @@ public class NotificationHelper
                       .setLargeIcon(BitmapFactory.decodeResource(ctx.getResources(), notificationIconSmall))
                       .setContentTitle(notificationTitle)
                       .setContentText(notificationText)
-                      .setStyle(new NotificationCompat.BigTextStyle())
+                      .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                       .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE)
                       .setContentIntent(resultPendingIntent);
 
@@ -101,6 +101,7 @@ public class NotificationHelper
                       .setLargeIcon(BitmapFactory.decodeResource(ctx.getResources(), R.drawable.foxhound))
                       .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                       .setCustomContentView(notificationView)
+                      .setCustomBigContentView(notificationView)
                       .setStyle(new NotificationCompat.BigTextStyle());
 
               if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)

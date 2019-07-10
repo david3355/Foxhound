@@ -47,7 +47,7 @@
         android:layout_marginEnd="@dimen/notif_settings_margin_end"
         android:textColor="@color/colorNotifSettingsValue"
         android:maxLines="1"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         android:background="@drawable/default_foxhound_background"/>
 
     </LinearLayout>
@@ -76,7 +76,7 @@
             android:layout_marginEnd="@dimen/notif_settings_margin_end"
             android:textColor="@color/colorNotifSettingsValue"
             android:maxLines="1"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:background="@drawable/default_foxhound_background"/>
 
     </LinearLayout>
@@ -105,7 +105,7 @@
             android:layout_weight="0.4"
             android:textColor="@color/colorNotifSettingsValue"
             android:maxLines="1"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:background="@drawable/default_foxhound_background"/>
 
         <TextView
@@ -142,7 +142,7 @@
             android:layout_weight="0.4"
             android:textColor="@color/colorNotifSettingsValue"
             android:maxLines="1"
-            android:inputType="number"
+            android:inputType="numberDecimal"
             android:background="@drawable/default_foxhound_background"/>
 
         <TextView
