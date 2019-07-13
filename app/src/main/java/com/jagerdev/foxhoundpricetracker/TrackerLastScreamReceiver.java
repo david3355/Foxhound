@@ -32,6 +32,7 @@ public class TrackerLastScreamReceiver extends BroadcastReceiver
                     svcIntent.putExtra(TrackerService.START_IN_FOREGROUND, true);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                     {
+                           Log.i(this.getClass().getSimpleName(), "Starting foreground service...");
                            context.startForegroundService(svcIntent);
                     } else context.startService(svcIntent);
              }

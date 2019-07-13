@@ -51,16 +51,17 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        @Override
        public int onStartCommand(Intent intent, int flags, int startId)
        {
+              if (intent != null)  // Is this necessary? Should be started as foreground service instead
+              {
+                     boolean onSystemStartup = intent.getBooleanExtra(TrackerService.START_IN_FOREGROUND, false);
+                     if (onSystemStartup) foreground();
+              }
               TrackerInitializer.initialize(this);
               logger.info("Starting PriceTracker Android service");
               Thread starter = new Thread(this);
               starter.start();
               running = true;
-              if (intent != null)
-              {
-                     boolean onSystemStartup = intent.getBooleanExtra(TrackerService.START_IN_FOREGROUND, false);
-                     if (onSystemStartup) foreground();
-              }
+
               return Service.START_STICKY;
        }
 
@@ -79,10 +80,10 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
                      try
                      {
                             priceTrackerSvc.removeEventListener(this);
-                            priceTrackerSvc.stop();
+                            priceTrackerSvc.stop(forceStopped);
                      } catch (Exception e)
                      {
-                            Log.w(this.getClass().getName(), String.format("Error while stopping pricetracker service: %s", e.getMessage()));
+                            Log.w(this.getClass().getName(), String.format("Error while stopping PriceTracker service: %s", e.getMessage()));
                      }
               }
               running = false;
