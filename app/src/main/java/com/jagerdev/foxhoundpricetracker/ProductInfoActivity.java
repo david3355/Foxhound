@@ -83,7 +83,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        private EditText edit_product_name, edit_product_path, edit_product_inspect_freq;
        private TextView txt_product_url, label_product_path, label_product_price, label_product_name;
-       private TextView txt_last_check, txt_product_status, txt_record_datetime, txt_alarm_count;
+       private TextView txt_last_check, txt_product_status, txt_record_datetime, txt_alarm_count, txt_product_status_bought;
        private Spinner edit_product_inspect_unit;
        private EditText edit_product_price;
        private TextView txt_product_actual_price;
@@ -96,11 +96,14 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private ImageView img_notif_settings_expand, img_parse_settings_expand;
        private LinearLayout panel_product_status;
        private TextView txt_product_details_sign, txt_product_status_details;
+       private CheckBox check_do_not_check_product;
+       private ImageButton btn_mark_bought;
 
        private LineChart chart;
        private UniversalPriceParser priceParser = UniversalPriceParser.getInstance();
 
-       private LinearLayout notification_settings_header, notification_settings_panel, parse_settings_header, parse_settings_panel;
+       private LinearLayout notification_settings_header, notification_settings_panel, parse_settings_header, parse_settings_panel, panel_product_archived;
+       private Button btn_unarchive_product;
 
        private CheckBox check_notification_price_changes;
        private CheckBox check_notification_price_goes_above;
@@ -182,6 +185,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               txt_alarm_count = findViewById(R.id.txt_alarm_count);
               txt_last_check = findViewById(R.id.txt_last_check);
               txt_product_status = findViewById(R.id.txt_product_status);
+              txt_product_status_bought = findViewById(R.id.txt_product_status_bought);
               txt_record_datetime = findViewById(R.id.txt_record_datetime);
               edit_product_price = findViewById(R.id.edit_product_price);
               txt_product_actual_price = findViewById(R.id.txt_product_actual_price);
@@ -190,6 +194,10 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_retrack_product = findViewById(R.id.btn_retrack_product);
               btn_edit_price = findViewById(R.id.btn_edit_price);
               progress_product_refresh = findViewById(R.id.progress_product_refresh);
+              check_do_not_check_product = findViewById(R.id.check_do_not_check_product);
+              btn_mark_bought = findViewById(R.id.btn_mark_bought);
+              panel_product_archived = findViewById(R.id.panel_product_archived);
+              btn_unarchive_product = findViewById(R.id.btn_unarchive_product);
 
               notification_settings_header = findViewById(R.id.notification_settings_header);
               notification_settings_header.setOnClickListener(this);
@@ -247,6 +255,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               panel_product_status.setOnClickListener(this);
 
               btn_parse_preview.setOnClickListener(this);
+              btn_mark_bought.setOnClickListener(this);
+              btn_unarchive_product.setOnClickListener(this);
 
               // TODO set notificationSettings properties from loading database
 
@@ -260,7 +270,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               }
 
               String productId = getIntent().getStringExtra("product_id");
-              respectiveProduct = priceTrackerService.getProduct(productId);
+              boolean archived = getIntent().getBooleanExtra("is_archived", false);
+
+              respectiveProduct = archived ? priceTrackerService.getArchivedProduct(productId) : priceTrackerService.getProduct(productId); // what if product archived
 
               txt_last_check.setText(respectiveProduct.getDateOfLastCheck().toString("yyyy-MM-dd HH:mm:ss"));
               txt_record_datetime.setText(respectiveProduct.getDateOfRecord().toString("yyyy-MM-dd HH:mm:ss"));
@@ -273,10 +285,14 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               txt_product_actual_price.setText(respectiveProduct.getActualPrice());
               edit_product_inspect_freq.setText(String.valueOf(frequency.frequency));
               setAvailability(respectiveProduct.isAvailableNow() ? ProductStatus.AVAILABLE : ProductStatus.NOT_AVAILABLE);
+              setBoughtButton();
               txt_product_status_details.setText(readStateDetailsPrefs(STATE_DETAILS_PREF_PREFIX_KEY,"Error details are not available yet!"));
               if (!respectiveProduct.isAvailableNow())
                      txt_product_details_sign.setVisibility(View.VISIBLE);
               else txt_product_details_sign.setVisibility(View.GONE);
+
+              check_do_not_check_product.setChecked(respectiveProduct.isDoNotCheck());
+              panel_product_archived.setVisibility(respectiveProduct.isArchived() ? View.VISIBLE : View.GONE);
 
               setPriceParts(respectiveProduct.getActualPrice(), respectiveProduct.getDecimalSeparator());
               loadNotificationSettings(respectiveProduct);
@@ -488,6 +504,12 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             txt_product_status.setTextColor(getResources().getColor(R.color.colorRed));
                             break;
               }
+              setBoughtStatus();
+       }
+
+       private void setBoughtStatus()
+       {
+              txt_product_status_bought.setVisibility(respectiveProduct.isBought() ? View.VISIBLE : View.GONE);
        }
 
        private void setPriceParts(String priceString, Character decimalSeparator)
@@ -727,6 +749,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               String productName = edit_product_name.getText().toString();
               String inspectFreq = edit_product_inspect_freq.getText().toString();
               String ifUnit = Frequency.UNITS[edit_product_inspect_unit.getSelectedItemPosition()];
+              boolean doNotCheck = check_do_not_check_product.isChecked();
+              boolean bought = respectiveProduct.isBought();
 
               Double priceGoesAboveLimit, priceGoesBelowLimit, priceIncreasePercentLimit, priceDecreasePercentLimit;
               priceGoesAboveLimit = priceGoesBelowLimit = priceIncreasePercentLimit = priceDecreasePercentLimit = null;
@@ -748,13 +772,38 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               try
               {
                      priceTrackerManager.saveProduct(respectiveProduct.getId(), productName, inspectFreq, ifUnit,
-                             notifyIfPriceChanges, priceGoesAboveLimit, priceGoesBelowLimit, priceIncreasePercentLimit, priceDecreasePercentLimit, notifyIfAvailabilityChanges, notifyIfProductAvailable, notifyIfProductUnavailable, manualDecimalSeparator);
+                             notifyIfPriceChanges, priceGoesAboveLimit, priceGoesBelowLimit, priceIncreasePercentLimit, priceDecreasePercentLimit, notifyIfAvailabilityChanges, notifyIfProductAvailable, notifyIfProductUnavailable, manualDecimalSeparator, bought, doNotCheck);
                      setPriceParts(respectiveProduct.getActualPrice(), respectiveProduct.getDecimalSeparator());
                      showInfo(String.format("Product saved: %s", productName));
               } catch (DatabaseException e)
               {
                      showInfo(e.getMessage());
               }
+       }
+
+       private void archiveDialog()
+       {
+              DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener()
+              {
+                     @Override
+                     public void onClick(DialogInterface dialog, int which)
+                     {
+                            switch (which)
+                            {
+                                   case DialogInterface.BUTTON_POSITIVE:
+                                          archiveProduct();
+                                          break;
+
+                                   case DialogInterface.BUTTON_NEGATIVE:
+                                          //No button clicked
+                                          break;
+                            }
+                     }
+              };
+
+              AlertDialog.Builder builder = new AlertDialog.Builder(this);
+              builder.setMessage("Are you sure you want to archive the product? Product is not tracked and shown in product list when archived, but it can be unarchived.").setPositiveButton("Yes", dialogClickListener)
+                      .setNegativeButton("No", dialogClickListener).show();
        }
 
        private void removeDialog()
@@ -803,6 +852,30 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               priceTrackerManager.removeProduct(productId);
               deleteStateDetailsPrefs(STATE_DETAILS_PREF_PREFIX_KEY);
               Toast.makeText(this, "Product removed.", Toast.LENGTH_SHORT).show();
+       }
+
+       private void archiveProduct()
+       {
+              try
+              {
+                     priceTrackerManager.archiveProduct(respectiveProduct);
+                     panel_product_archived.setVisibility(respectiveProduct.isArchived() ? View.VISIBLE : View.GONE);
+              } catch (DatabaseException e)
+              {
+                     e.printStackTrace();
+              }
+       }
+
+       private void unarchiveProduct()
+       {
+              try
+              {
+                     priceTrackerManager.unarchiveProduct(respectiveProduct);
+                     panel_product_archived.setVisibility(respectiveProduct.isArchived() ? View.VISIBLE : View.GONE);
+              } catch (DatabaseException e)
+              {
+                     e.printStackTrace();
+              }
        }
 
        private void reTrackProduct()
@@ -931,6 +1004,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      case R.id.item_remove_product:
                             removeDialog();
                             break;
+                     case R.id.item_archive_product:
+                            archiveDialog();
+                            break;
                      case R.id.item_save_product:
                             saveProduct();
                             break;
@@ -991,7 +1067,33 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             break;
                      case R.id.btn_parse_preview:
                             setPriceParts(respectiveProduct.getActualPrice(), getManualDecimalSeparator());
+                     case R.id.btn_mark_bought:
+                            toggleProductBought();
+                            break;
+                     case R.id.btn_unarchive_product:
+                            unarchiveProduct();
               }
+       }
+
+       private void setBoughtButton()
+       {
+              if (respectiveProduct.isBought())
+              {
+                     btn_mark_bought.setImageResource(R.drawable.cart_refresh);
+              }
+              else
+              {
+                     btn_mark_bought.setImageResource(R.drawable.cart_bought);
+              }
+       }
+
+       private void toggleProductBought()
+       {
+              respectiveProduct.setBought(!respectiveProduct.isBought());
+              Toast.makeText(this, String.format("You have marked this product as%s bought: ", respectiveProduct.isBought() ? "" : "not"), Toast.LENGTH_SHORT).show();
+              setBoughtStatus();
+              setBoughtButton();
+              saveProduct();
        }
 
        private void toggleProductAvailabilityStatusDetails()

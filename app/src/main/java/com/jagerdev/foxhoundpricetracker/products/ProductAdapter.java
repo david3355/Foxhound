@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jagerdev.foxhoundpricetracker.R;
@@ -46,6 +47,7 @@ public class ProductAdapter extends ArrayAdapter<Product>
               TextView text_product_name = view.findViewById(R.id.product_name);
               TextView text_product_price = view.findViewById(R.id.product_price);
               TextView text_product_alarm = view.findViewById(R.id.product_alarm);
+              ImageView image_bought = view.findViewById(R.id.image_product_bought);
               Product p = getItem(i);
               int textColor = p.isAvailableNow() ? ContextCompat.getColor(getContext(), R.color.colorSpringGreen) : Color.RED;
               text_product_name.setText(p.getName());
@@ -57,6 +59,7 @@ public class ProductAdapter extends ArrayAdapter<Product>
                      //text_product_alarm.setText(String.valueOf(p.getActiveAlarms()));
                      text_product_alarm.setBackgroundColor(Color.rgb(255, 155, 0));
               }
+              image_bought.setVisibility(p.isBought() ? View.VISIBLE : View.INVISIBLE);
 
               Linkify.addLinks(text_product_name, Linkify.WEB_URLS);
               return view;

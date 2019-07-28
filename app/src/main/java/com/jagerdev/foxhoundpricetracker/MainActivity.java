@@ -329,6 +329,9 @@ public class MainActivity extends AppCompatActivity
                      case R.id.import_products:
                             selectFileToImport();
                             break;
+                     case R.id.archived_products:
+                            startActivity(new Intent(this, ArchivedProducts.class));
+                            break;
               }
 
               return super.onOptionsItemSelected(item);

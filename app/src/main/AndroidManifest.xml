@@ -25,6 +25,7 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
+
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -53,7 +54,6 @@
             android:exported="true"
             android:label="TrackerLastScreamReceiver">
         </receiver>
-
         <receiver
             android:name=".StartupReceiver"
             android:enabled="true"
@@ -79,14 +79,17 @@
         </service>
 
         <provider
-            android:name="com.jagerdev.foxhoundpricetracker.utils.DbFileProvider"
+            android:name=".utils.DbFileProvider"
             android:authorities="com.jagerdev.foxhoundpricetracker.dbfileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepaths" />
+                android:resource="@xml/filepaths"/>
         </provider>
+
+        <activity android:name=".ArchivedProducts">
+        </activity>
     </application>
 
 </manifest>

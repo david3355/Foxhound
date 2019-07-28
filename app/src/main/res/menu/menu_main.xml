@@ -35,4 +35,9 @@
         android:title="Import products"
         android:icon="@drawable/import_img"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/archived_products"
+        android:title="Archived products"
+        app:showAsAction="never"/>
 </menu>

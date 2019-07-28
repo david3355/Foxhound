@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -46,6 +47,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
        private ProgressBar progress_new_product;
        private ImageButton btn_time_plus, btn_time_minus;
        private Button btn_track_product;
+       private CheckBox check_do_not_check_product;
 
        public final static String COPY_NAME = "copy_name";
        public final static String COPY_URL = "copy_url";
@@ -73,6 +75,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               progress_new_product = findViewById(R.id.progress_new_product);
               btn_time_plus = findViewById(R.id.btn_time_plus);
               btn_time_minus = findViewById(R.id.btn_time_minus);
+              check_do_not_check_product = findViewById(R.id.check_do_not_check_product_on_reg);
 
               btn_time_plus.setOnClickListener(this);
               btn_time_minus.setOnClickListener(this);
@@ -207,13 +210,15 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               final String productPrice = new_product_price.getText().toString();
               final String productInspectFreq = new_product_inspect_freq.getText().toString();
               final String productIFUnit = Frequency.UNITS[new_product_inspect_unit.getSelectedItemPosition()];
+              final boolean doNotTrackPrice = check_do_not_check_product.isChecked();
 
               progress_new_product.setVisibility(View.VISIBLE);
               btn_track_product.setEnabled(false);
-              trackNewProduct(priceTrackerManager, this, productName, productWebPath, productPrice, productInspectFreq, productIFUnit, this);
+              trackNewProduct(priceTrackerManager, this, productName, productWebPath, productPrice, productInspectFreq, productIFUnit, this, doNotTrackPrice);
        }
 
-       public static void trackNewProduct(final PriceTrackerManager priceTrackerManager, final Context context, final String productName, final String productWebPath, final String productPrice, final String productInspectFreq, final String productIFUnit, final ProductRegisteredEvent eventHandler)
+       public static void trackNewProduct(final PriceTrackerManager priceTrackerManager, final Context context, final String productName, final String productWebPath,
+                                          final String productPrice, final String productInspectFreq, final String productIFUnit, final ProductRegisteredEvent eventHandler, final boolean doNotTrackPrice)
        {
               Thread t = new Thread(new Runnable()
               {
@@ -222,7 +227,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                      {
                             try
                             {
-                                   priceTrackerManager.trackNewItem(productPrice, productWebPath, productName, productInspectFreq, productIFUnit);
+                                   priceTrackerManager.registerNewItem(productPrice, productWebPath, productName, productInspectFreq, productIFUnit, doNotTrackPrice);
                                    showInfo(context, String.format("%s is added to tracked items: %s. Checking period: %s %s", productName, productPrice, productInspectFreq, productIFUnit));
                                    eventHandler.onRegisteredSuccessfully();
                             } catch (ImproperPathSelectorException e)

@@ -287,7 +287,7 @@ public class FloatingCopyService extends Service implements View.OnClickListener
                      String inspectUnit = settings.getStringConfig(GlobalSettings.ConfigKey.DEFAULT_INSPECTION_UNIT);
                      floatingmenu_fast_register.setVisibility(View.GONE);
                      progress_fast_register.setVisibility(View.VISIBLE);
-                     NewProductActivity.trackNewProduct(priceTrackerManager, this, name, url, price, inspectTime, inspectUnit, productRegisteredHandler);
+                     NewProductActivity.trackNewProduct(priceTrackerManager, this, name, url, price, inspectTime, inspectUnit, productRegisteredHandler, false);
               } catch (DatabaseException e)
               {
                      Toast.makeText(FloatingCopyService.this, String.format("Failed to register product %s. Details: %s", name, e.getMessage()), Toast.LENGTH_LONG).show();

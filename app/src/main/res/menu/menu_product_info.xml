@@ -33,4 +33,8 @@
         android:icon="@drawable/remove"
         android:title="Remove product"/>
 
+    <item
+        android:id="@+id/item_archive_product"
+        android:title="Archive product"/>
+
 </menu>

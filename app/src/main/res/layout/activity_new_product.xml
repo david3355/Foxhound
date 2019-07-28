@@ -129,6 +129,16 @@
                 </Spinner>
             </LinearLayout>
 
+        <CheckBox
+            android:id="@+id/check_do_not_check_product_on_reg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="@color/colorSpringGreen"
+            android:textStyle="bold"
+            android:hint="When checked, product is registered but its price is not tracked. Tracking can be turned on afterwards."
+            android:text="Do not track price"/>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
