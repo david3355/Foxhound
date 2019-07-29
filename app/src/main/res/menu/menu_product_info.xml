@@ -37,4 +37,8 @@
         android:id="@+id/item_archive_product"
         android:title="Archive product"/>
 
+    <item
+        android:id="@+id/item_price_history"
+        android:title="Open price history"/>
+
 </menu>

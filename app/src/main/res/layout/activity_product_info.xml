@@ -391,7 +391,7 @@
                 android:id="@+id/check_do_not_check_product"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="15sp"
+                android:textSize="16sp"
                 android:textColor="@color/colorSpringGreen"
                 android:textStyle="bold"
                 android:layout_marginBottom="10dp"
@@ -412,7 +412,7 @@
                     android:layout_weight="0.8"
                     android:text="Notification settings"
                     android:textColor="@color/colorSpringGreen"
-                    android:textSize="15dp"
+                    android:textSize="16sp"
                     android:textStyle="bold"/>
 
                 <ImageView
@@ -448,7 +448,7 @@
                     android:layout_weight="0.8"
                     android:text="Price parse settings"
                     android:textColor="@color/colorSpringGreen"
-                    android:textSize="15dp"
+                    android:textSize="16sp"
                     android:textStyle="bold"/>
 
                 <ImageView
@@ -519,14 +519,6 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 android:showDividers="middle"/>
-
-            <LinearLayout
-                android:id="@+id/list_history"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                />
         </LinearLayout>
 
     </LinearLayout>

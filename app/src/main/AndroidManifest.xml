@@ -90,6 +90,8 @@
 
         <activity android:name=".ArchivedProducts">
         </activity>
+        <activity android:name=".PriceHistoryActivity">
+        </activity>
     </application>
 
 </manifest>

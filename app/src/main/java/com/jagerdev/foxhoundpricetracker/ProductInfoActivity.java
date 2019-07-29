@@ -10,11 +10,9 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -42,7 +40,6 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.jagerdev.foxhoundpricetracker.products.Frequency;
-import com.jagerdev.foxhoundpricetracker.products.ProductSnapshotComparator;
 import com.jagerdev.foxhoundpricetracker.products.UniqueSelector;
 import com.jagerdev.foxhoundpricetracker.products.UniversalPriceParser;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
@@ -51,7 +48,6 @@ import com.jagerdev.foxhoundpricetracker.utils.chart.HistoryChartMarkerView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -75,7 +71,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private static final String PREFS_NAME = "com.jagerdev.foxhoundpricetracker.FoxhoundPriceTracker";
        public static final String STATE_DETAILS_PREF_PREFIX_KEY = "product_state_details_";
        public static final String NOTIF_PREF_PREFIX_KEY = "notif_pref_details_";
-       private LinearLayout list_history;
        private PriceTrackerService priceTrackerService;
        private PriceTrackerManager priceTrackerManager;
        private ServiceRunHandler svcRunHandler;
@@ -133,15 +128,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               {
                      priceTrackerService.addEventListener(this);
               }
-              Thread historySetter = new Thread(new Runnable()
-              {
-                     @Override
-                     public void run()
-                     {
-                            setItemsToList(respectiveProduct);
-                     }
-              });
-              historySetter.start();
+
+              setHistoryChart(respectiveProduct);
               super.onResume();
        }
 
@@ -305,7 +293,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               edit_product_inspect_unit.setAdapter(unitsAdapter);
               edit_product_inspect_unit.setSelection(frequency.getIndex());
 
-              list_history = findViewById(R.id.list_history);
               edit_product_name.requestFocus();
        }
 
@@ -364,17 +351,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               } else changeAlarmsVisibility(View.GONE);
        }
 
-       public View createViewForListItem(ViewGroup parent, ProductSnapshot product)
-       {
-              LayoutInflater inflater = LayoutInflater.from(this);
-              View view = inflater.inflate(R.layout.history_item_layout, parent, false);
-              TextView txt_record_date = view.findViewById(R.id.txt_record_date);
-              TextView txt_product_price = view.findViewById(R.id.txt_product_price);
-              txt_record_date.setText(product.getDateOfSnapshot().toString("yyyy-MM-dd HH:mm:ss"));
-              txt_product_price.setText(product.getPrice());
-              return view;
-       }
-
        @Override
        public void priceChanges(final String oldPrice, final String newPrice, final Product product)
        {
@@ -428,15 +404,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      public void run()
                      {
                             txt_last_check.setText(product.getDateOfLastCheck().toString("yyyy-MM-dd HH:mm:ss"));
-                            Thread historySetter = new Thread(new Runnable()
-                            {
-                                   @Override
-                                   public void run()
-                                   {
-                                          setItemsToList(respectiveProduct);
-                                   }
-                            });
-                            historySetter.start();
+                            setHistoryChart(respectiveProduct);
                      }
               });
        }
@@ -543,15 +511,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               return new Frequency("sec", inspectFrequencySeconds);
        }
 
-       private void setItemsToList(Product product)
+       private void setHistoryChart(Product product)
        {
-              try
-              {
-                     Thread.sleep(200);
-              } catch (InterruptedException e)
-              {
-                     e.printStackTrace();
-              }
               List<ProductSnapshot> history = priceTrackerService.getProductHistory(product.getId());
               UniqueSelector<ProductSnapshot> selector = new UniqueSelector<>();
               final List<ProductSnapshot> uniqueHistory = selector.getUniqueList(history);
@@ -570,20 +531,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               // TODO fix this on Android 6
               initChart(uniqueHistory);
               drawChart(uniqueHistory);
-
-              Collections.sort(uniqueHistory, new ProductSnapshotComparator(false));
-
-              runOnUiThread(new Runnable()
-              {
-                     @Override
-                     public void run()
-                     {
-                            list_history.removeAllViews();
-//                            adapter.addAll(history);
-                            for (ProductSnapshot ps : uniqueHistory)
-                                   list_history.addView(createViewForListItem(list_history, ps));
-                     }
-              });
        }
 
        private void initChart(List<ProductSnapshot> history)
@@ -744,7 +691,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               } else return null; // option_auto_separator
        }
 
-       private void saveProduct()
+       private void saveProduct(boolean showInfo)
        {
               String productName = edit_product_name.getText().toString();
               String inspectFreq = edit_product_inspect_freq.getText().toString();
@@ -774,7 +721,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      priceTrackerManager.saveProduct(respectiveProduct.getId(), productName, inspectFreq, ifUnit,
                              notifyIfPriceChanges, priceGoesAboveLimit, priceGoesBelowLimit, priceIncreasePercentLimit, priceDecreasePercentLimit, notifyIfAvailabilityChanges, notifyIfProductAvailable, notifyIfProductUnavailable, manualDecimalSeparator, bought, doNotCheck);
                      setPriceParts(respectiveProduct.getActualPrice(), respectiveProduct.getDecimalSeparator());
-                     showInfo(String.format("Product saved: %s", productName));
+                     if (showInfo) showInfo(String.format("Product saved: %s", productName));
               } catch (DatabaseException e)
               {
                      showInfo(e.getMessage());
@@ -836,12 +783,17 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        private void showInfo(final String message)
        {
+              showInfo(message, true);
+       }
+
+       private void showInfo(final String message, final boolean longText)
+       {
               runOnUiThread(new Runnable()
               {
                      @Override
                      public void run()
                      {
-                            Toast.makeText(ProductInfoActivity.this, message, Toast.LENGTH_LONG).show();
+                            Toast.makeText(ProductInfoActivity.this, message,  longText ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
                      }
               });
        }
@@ -1008,7 +960,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             archiveDialog();
                             break;
                      case R.id.item_save_product:
-                            saveProduct();
+                            saveProduct(true);
                             break;
                      case R.id.menu_refresh_product:
                             forceRefreshProduct();
@@ -1018,6 +970,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             break;
                      case R.id.item_share_product:
                             shareProduct();
+                            break;
+                     case R.id.item_price_history:
+                            gotoPriceHistory();
                             break;
               }
 
@@ -1090,10 +1045,11 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private void toggleProductBought()
        {
               respectiveProduct.setBought(!respectiveProduct.isBought());
-              Toast.makeText(this, String.format("You have marked this product as%s bought: ", respectiveProduct.isBought() ? "" : "not"), Toast.LENGTH_SHORT).show();
+              String txt = String.format("You have marked this product as%s bought: %s", respectiveProduct.isBought() ? "" : " not", respectiveProduct.getName());
+              showInfo(txt, false);
               setBoughtStatus();
               setBoughtButton();
-              saveProduct();
+              saveProduct(false);
        }
 
        private void toggleProductAvailabilityStatusDetails()
@@ -1129,6 +1085,14 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      notification_settings_panel.setVisibility(View.GONE);
               }
 
+       }
+
+       private void gotoPriceHistory()
+       {
+              Intent productHistoryActivity = new Intent(this, PriceHistoryActivity.class);
+              productHistoryActivity.putExtra("product_id", respectiveProduct.getId());
+              productHistoryActivity.putExtra("is_archived", respectiveProduct.isArchived());
+              startActivity(productHistoryActivity);
        }
 
        private void showClipboardCopyMsg(String content)
