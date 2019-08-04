@@ -52,12 +52,10 @@ public class WebService extends Service implements OnInvalidInput
        {
               try
               {
-                     guiServer.stop();
+                     if (guiServer != null) guiServer.stop();
                      if (restServer != null) restServer.stop();
-              }
-              catch (Exception e)
+              } catch (Exception e)
               {
-
               }
               super.onDestroy();
        }
@@ -87,6 +85,6 @@ public class WebService extends Service implements OnInvalidInput
        @Override
        public void invalidInput(Object o, String s)
        {
-             // TODO message over Websocket?
+              // TODO message over Websocket?
        }
 }

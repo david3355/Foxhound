@@ -139,6 +139,16 @@
             android:hint="When checked, product is registered but its price is not tracked. Tracking can be turned on afterwards."
             android:text="Do not track price"/>
 
+            <ProgressBar
+                android:id="@+id/progress_new_product"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                />
+
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -159,14 +169,6 @@
                     />
 
             </LinearLayout>
-            <ProgressBar
-                android:id="@+id/progress_new_product"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_marginTop="10dp"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                />
 
         </LinearLayout>
     </LinearLayout>
