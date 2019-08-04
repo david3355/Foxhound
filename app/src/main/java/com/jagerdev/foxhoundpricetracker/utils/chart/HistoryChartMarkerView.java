@@ -33,16 +33,15 @@ public class HistoryChartMarkerView extends MarkerView
        @Override
        public void refreshContent(Entry e, Highlight highlight)
        {
-
+              boolean isInteger = e.getY() == (int) e.getY();
+              int digitNumber = isInteger ? 0 : 3;
               if (e instanceof CandleEntry)
               {
-
                      CandleEntry ce = (CandleEntry) e;
-
-                     txtMarkerValue.setText(Utils.formatNumber(ce.getHigh(), 0, false));
+                     txtMarkerValue.setText(Utils.formatNumber(ce.getHigh(), digitNumber, false));
               } else
               {
-                     String value = Utils.formatNumber(e.getY(), 0, false);
+                     String value = Utils.formatNumber(e.getY(), digitNumber, false);
                      String date = dateFormatter.format(new Date((long)e.getX()));
                      txtMarkerDate.setText(String.format("%s ", date));
                      txtMarkerValue.setText(value);
