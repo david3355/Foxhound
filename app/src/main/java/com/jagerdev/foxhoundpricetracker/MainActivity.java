@@ -419,10 +419,18 @@ public class MainActivity extends AppCompatActivity
        }
 
        @Override
-       public void productAdded(Product product)
+       public void productAdded(final Product product)
        {
               setItemsToList();
-              AndroidUtil.toastOnThread(this, String.format("New product added: %s", product.getName()));
+              runOnUiThread(new Runnable()
+              {
+                     @Override
+                     public void run()
+                     {
+                            productAdapter.notifyDataSetChanged();
+                            Toast.makeText(MainActivity.this, String.format("New product added: %s", product.getName()), Toast.LENGTH_SHORT).show();
+                     }
+              });
        }
 
        @Override

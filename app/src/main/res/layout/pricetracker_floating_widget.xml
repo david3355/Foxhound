@@ -22,8 +22,6 @@
             android:visibility="visible"
             >
 
-
-
             <!--Icon of floating widget -->
             <ImageView
                 android:id="@+id/floating_pricetracker_widget"
