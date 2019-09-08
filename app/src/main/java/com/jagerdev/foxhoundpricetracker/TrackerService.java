@@ -80,7 +80,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
                      try
                      {
                             priceTrackerSvc.removeEventListener(this);
-                            priceTrackerSvc.stop(forceStopped);
+                            priceTrackerSvc.stop(false);
                      } catch (Exception e)
                      {
                             Log.w(this.getClass().getName(), String.format("Error while stopping PriceTracker service: %s", e.getMessage()));

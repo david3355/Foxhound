@@ -28,5 +28,19 @@
             </menu>
         </item>
 
+        <item android:title="Services">
+            <menu>
+                <item
+                    android:id="@+id/nav_pricetracker_service"
+                    android:icon="@drawable/ico_tracker_service"
+                    android:title="@string/stop_pricetracker_service" />
+
+                <item
+                    android:id="@+id/nav_webpage_service"
+                    android:icon="@drawable/ico_webservice"
+                    android:title="@string/start_webservice" />
+            </menu>
+        </item>
+
     </group>
 </menu>

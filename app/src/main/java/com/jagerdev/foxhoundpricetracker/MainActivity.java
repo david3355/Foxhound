@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity
        private ServiceRunHandler svcRunHandler;
 
        private DrawerLayout navigationDrawerLayout;
+       private MenuItem nav_pricetracker_service, nav_webpage_service;
 
        public static int PICKFILE_REQUEST_CODE = 25000;
 
@@ -123,6 +124,9 @@ public class MainActivity extends AppCompatActivity
 
               NavigationView navigationView = findViewById(R.id.navigation_view);
               navigationView.setNavigationItemSelectedListener(this);
+              Menu navigationMenu = navigationView.getMenu();
+              nav_pricetracker_service = navigationMenu.findItem(R.id.nav_pricetracker_service);
+              nav_webpage_service = navigationMenu.findItem(R.id.nav_webpage_service);
 
               svcRunHandler = ServiceRunHandler.getInstance();
               svcRunHandler.setDelayMsec(0);
@@ -168,6 +172,8 @@ public class MainActivity extends AppCompatActivity
 
               list_products.setAdapter(productAdapter);
 
+              startTrackerService();
+
 //              ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET},1);
 
 //              if (!AndroidUtil.isServiceRunning(this, TrackerService.class)) startTrackerService();
@@ -193,23 +199,40 @@ public class MainActivity extends AppCompatActivity
               }
        }
 
-       private void checkWebserver()
+       private boolean isWebserviceRunning()
        {
-              if (!AndroidUtil.isServiceRunning(this, WebService.class))
-              {
-                     Intent webService = new Intent(this, WebService.class);
-                     startService(webService);
-              }
+               return AndroidUtil.isServiceRunning(this, WebService.class);
+       }
 
-              String hostAddress = NetworkUtil.getWifiIp(this);
-              if (hostAddress != null )   // TODO check if gui service is running
+       private boolean isTrackerServiceRunning()
+       {
+               return AndroidUtil.isServiceRunning(this, TrackerService.class);
+       }
+
+       private void toggleWebServer()
+       {
+              if (!isWebserviceRunning())
               {
-                     txt_webpage_address.setText(String.format("http://%s:%s", hostAddress, WebService.GUI_PORT));
-                     panel_webpage_address.setVisibility(View.VISIBLE);
+                  Intent webService = new Intent(this, WebService.class);
+                  startService(webService);
+
+                  String hostAddress = NetworkUtil.getWifiIp(this);
+                  if (hostAddress != null )   // TODO check if gui service is running
+                  {
+                      txt_webpage_address.setText(String.format("http://%s:%s", hostAddress, WebService.GUI_PORT));
+                      panel_webpage_address.setVisibility(View.VISIBLE);
+                  }
+                  else
+                  {
+                      panel_webpage_address.setVisibility(View.GONE);
+                  }
+                  nav_webpage_service.setTitle(getResources().getString(R.string.stop_webservice));
               }
               else
               {
-                     panel_webpage_address.setVisibility(View.GONE);
+                  stopService(new Intent(this, WebService.class));
+                  panel_webpage_address.setVisibility(View.GONE);
+                  nav_webpage_service.setTitle(getResources().getString(R.string.start_webservice));
               }
        }
 
@@ -218,7 +241,6 @@ public class MainActivity extends AppCompatActivity
        {
               super.onStart();
               TrackerService.forceStopped = false;
-              startTrackerService();
        }
 
        @Override
@@ -232,8 +254,8 @@ public class MainActivity extends AppCompatActivity
                      productAdapter.notifyDataSetChanged();
               }
 
-              checkWebserver();    // TODO user can turn it on and off manually later
-
+              nav_webpage_service.setTitle(isWebserviceRunning() ? getResources().getString(R.string.stop_webservice) : getResources().getString(R.string.start_webservice));
+              nav_pricetracker_service.setTitle(isTrackerServiceRunning() ? getResources().getString(R.string.stop_pricetracker_service) : getResources().getString(R.string.start_pricetracker_service));
               super.onResume();
        }
 
@@ -280,20 +302,33 @@ public class MainActivity extends AppCompatActivity
        private void startTrackerService()
        {
               Intent svc = new Intent(this, TrackerService.class);
-              if (!AndroidUtil.isServiceRunning(this, TrackerService.class))
+              if (!isTrackerServiceRunning())
               {
                      startService(svc);
                      Toast.makeText(this, "Tracking service is started.", Toast.LENGTH_SHORT).show();
               }
               bindService(svc, trackerSvcConnection, 0);
+              nav_pricetracker_service.setTitle(getResources().getString(R.string.stop_pricetracker_service));
        }
 
        private void stopTrackerService()
        {
               TrackerService.forceStopped = true;
+              if (trackerSvcBound)
+              {
+                  unbindService(trackerSvcConnection);
+                  trackerSvcBound = false;
+              }
               Intent svc = new Intent(this, TrackerService.class);
               stopService(svc);
               Toast.makeText(this, "Tracking service is stopped.", Toast.LENGTH_SHORT).show();
+              nav_pricetracker_service.setTitle(getResources().getString(R.string.start_pricetracker_service));
+       }
+
+       private void toggleTrackerService()
+       {
+           if (isTrackerServiceRunning()) stopTrackerService();
+           else startTrackerService();
        }
 
        private void forceRefreshAllProducts()
@@ -539,6 +574,12 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_import:
                 selectFileToImport();
+                break;
+            case R.id.nav_webpage_service:
+                toggleWebServer();
+                break;
+            case R.id.nav_pricetracker_service:
+                toggleTrackerService();
                 break;
         }
         return true;
