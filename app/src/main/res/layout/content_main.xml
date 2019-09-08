@@ -55,6 +55,18 @@
 
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/txt_no_products"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="20sp"
+            android:textColor="#949494"
+            android:textStyle="bold"
+            android:visibility="gone"
+            android:text="No products added"
+            />
+
         <ListView
             android:id="@+id/list_products"
             android:layout_width="match_parent"

@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity
         AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, View.OnLongClickListener
 {
        private ListView list_products;
-       private TextView txt_webpage_address;
+       private TextView txt_webpage_address, txt_no_products;
        private LinearLayout panel_webpage_address;
        private PriceTrackerService priceTrackerService;
        private ProductAdapter productAdapter;
@@ -111,6 +111,7 @@ public class MainActivity extends AppCompatActivity
               svcRunHandler = ServiceRunHandler.getInstance();
               svcRunHandler.setDelayMsec(0);
 
+              txt_no_products = findViewById(R.id.txt_no_products);
               panel_webpage_address = findViewById(R.id.panel_webpage_address);
               txt_webpage_address = findViewById(R.id.txt_webpage_address);
               search_bar_products = findViewById(R.id.search_bar_products);
@@ -155,6 +156,18 @@ public class MainActivity extends AppCompatActivity
 //              ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.INTERNET},1);
 
 //              if (!AndroidUtil.isServiceRunning(this, TrackerService.class)) startTrackerService();
+       }
+
+       private void toggleProductListVisibility()
+       {
+              if (productAdapter != null && productAdapter.getCount() > 0) {
+                     txt_no_products.setVisibility(View.GONE);
+                     list_products.setVisibility(View.VISIBLE);
+              }
+              else {
+                     txt_no_products.setVisibility(View.VISIBLE);
+                     list_products.setVisibility(View.GONE);
+              }
        }
 
        private void checkWebserver()
@@ -236,6 +249,7 @@ public class MainActivity extends AppCompatActivity
                             productAdapter.clear();
                             productAdapter.addAll(products.values());
                             productAdapter.sort(new ProductComparator());
+                            toggleProductListVisibility();
                      }
               });
        }
