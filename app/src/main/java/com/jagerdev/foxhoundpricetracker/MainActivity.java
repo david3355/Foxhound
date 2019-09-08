@@ -1,8 +1,13 @@
 package com.jagerdev.foxhoundpricetracker;
 
+import android.app.Dialog;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -19,14 +24,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jagerdev.foxhoundpricetracker.products.ProductAdapter;
-import com.jagerdev.foxhoundpricetracker.products.ProductComparator;
+import com.jagerdev.foxhoundpricetracker.products.comparators.ProductComparator;
+import com.jagerdev.foxhoundpricetracker.products.comparators.SortBy;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
 import com.jagerdev.foxhoundpricetracker.utils.DbFileProvider;
 import com.jagerdev.foxhoundpricetracker.utils.NetworkUtil;
@@ -46,7 +54,8 @@ import static com.jagerdev.foxhoundpricetracker.database.DBConstants.DATABASE_NA
 public class MainActivity extends AppCompatActivity
         implements OnInvalidInput, PriceTrackEvent, AdapterView.OnItemLongClickListener,
         AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, View.OnLongClickListener, NavigationView.OnNavigationItemSelectedListener {
-       private ListView list_products;
+
+    private ListView list_products;
        private TextView txt_webpage_address, txt_no_products;
        private LinearLayout panel_webpage_address;
        private PriceTrackerService priceTrackerService;
@@ -62,6 +71,13 @@ public class MainActivity extends AppCompatActivity
 
        private SearchView search_bar_products;
        private boolean trackerSvcBound = false;
+
+       private Dialog sortDialog;
+       private Button btn_sort_ascending, btn_sort_descending;
+       private RadioButton sort_last_added, sort_product_name, sort_last_updated, sort_actual_price;
+
+       public static final String PREFS_SORTBY = "SORT_BY";
+       public static final String PREFS_ASCENDING = "ASCENDING";
 
        private ServiceConnection trackerSvcConnection = new ServiceConnection()
        {
@@ -128,6 +144,17 @@ public class MainActivity extends AppCompatActivity
               nav_pricetracker_service = navigationMenu.findItem(R.id.nav_pricetracker_service);
               nav_webpage_service = navigationMenu.findItem(R.id.nav_webpage_service);
 
+              sortDialog = new Dialog(this);
+              sortDialog.setContentView(R.layout.sort_popup);
+              btn_sort_ascending = sortDialog.findViewById(R.id.btn_sort_ascending);
+              btn_sort_descending = sortDialog.findViewById(R.id.btn_sort_descending);
+              sort_last_added = sortDialog.findViewById(R.id.sort_last_added);
+              sort_last_updated = sortDialog.findViewById(R.id.sort_last_updated);
+              sort_product_name = sortDialog.findViewById(R.id.sort_product_name);
+              sort_actual_price = sortDialog.findViewById(R.id.sort_actual_price);
+
+              btn_sort_ascending.setOnClickListener(this);
+              btn_sort_descending.setOnClickListener(this);
               svcRunHandler = ServiceRunHandler.getInstance();
               svcRunHandler.setDelayMsec(0);
 
@@ -285,6 +312,11 @@ public class MainActivity extends AppCompatActivity
 
        private void setItemsToList()
        {
+              String sortByPref = AndroidUtil.readValueFromPrefs(PREFS_SORTBY, this, SortBy.LAST_ADDED.toString());
+              boolean ascending = Boolean.valueOf(AndroidUtil.readValueFromPrefs(PREFS_ASCENDING, this, "false"));
+
+              final ProductComparator comparator = ProductComparator.buildProductComparator(SortBy.valueOf(sortByPref), ascending);
+
               final Map<String, Product> products = priceTrackerService.getAllProducts();
               runOnUiThread(new Runnable()
               {
@@ -293,7 +325,7 @@ public class MainActivity extends AppCompatActivity
                      {
                             productAdapter.clear();
                             productAdapter.addAll(products.values());
-                            productAdapter.sort(new ProductComparator());
+                            productAdapter.sort(comparator);
                             toggleProductListVisibility();
                      }
               });
@@ -362,6 +394,28 @@ public class MainActivity extends AppCompatActivity
               refresher.start();
        }
 
+       private void showSortDialog()
+       {
+           sortDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+           SortBy sortBy = SortBy.valueOf(AndroidUtil.readValueFromPrefs(PREFS_SORTBY, this, SortBy.LAST_ADDED.toString()));
+           switch (sortBy)
+           {
+               case LAST_ADDED:
+                   sort_last_added.setChecked(true);
+                   break;
+               case LAST_UPDATED:
+                   sort_last_updated.setChecked(true);
+                   break;
+               case PRODUCT_NAME:
+                   sort_product_name.setChecked(true);
+                   break;
+               case ACTUAL_PRICE:
+                   sort_actual_price.setChecked(true);
+                   break;
+           }
+           sortDialog.show();
+       }
+
        @Override
        public boolean onCreateOptionsMenu(Menu menu)
        {
@@ -387,6 +441,9 @@ public class MainActivity extends AppCompatActivity
               {
                      case R.id.menu_refresh_products:
                             forceRefreshAllProducts();
+                            return true;
+                     case R.id.menu_sort:
+                            showSortDialog();
                             return true;
                      case R.id.search_bar_products:
                             search_bar_products.setVisibility(View.VISIBLE);
@@ -540,7 +597,31 @@ public class MainActivity extends AppCompatActivity
                      case R.id.txt_webpage_address:
                             copyWebserviceAddress();
                             break;
+                     case R.id.btn_sort_ascending:
+                            sortProducts(true);
+                            break;
+                     case R.id.btn_sort_descending:
+                            sortProducts(false);
+                            break;
               }
+       }
+
+       private SortBy getSortBy()
+       {
+           if (sort_last_updated.isChecked()) return SortBy.LAST_UPDATED;
+           if (sort_product_name.isChecked()) return SortBy.PRODUCT_NAME;
+           if (sort_actual_price.isChecked()) return SortBy.ACTUAL_PRICE;
+           return SortBy.LAST_ADDED;
+       }
+
+       private void sortProducts(boolean ascending)
+       {
+            SortBy sortBy = getSortBy();
+            AndroidUtil.saveValueToPrefs(PREFS_SORTBY, this, sortBy.toString());
+            AndroidUtil.saveValueToPrefs(PREFS_ASCENDING, this, String.valueOf(ascending));
+            setItemsToList();
+            if (productAdapter != null) productAdapter.notifyDataSetChanged();
+            sortDialog.dismiss();
        }
 
        @Override

@@ -6,6 +6,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,6 +15,8 @@ import static com.jagerdev.foxhoundpricetracker.MainActivity.PICKFILE_REQUEST_CO
 
 public class AndroidUtil
 {
+       private static final String PREFS_NAME = "com.jagerdev.foxhoundpricetracker.FoxhoundPriceTracker";
+
        public static boolean isServiceRunning(Context context, Class<?> serviceClass) {
               ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
               for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -87,5 +90,18 @@ public class AndroidUtil
               Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
               intent.setType("file/*.db");
               context.startActivityForResult(intent, PICKFILE_REQUEST_CODE);
+       }
+
+       public static void saveValueToPrefs(String prefKey, Context context, String value)
+       {
+              SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
+              prefs.putString(prefKey, value);
+              prefs.apply();
+       }
+
+       public static String readValueFromPrefs(String prefKey, Context context, String defaultValue)
+       {
+              SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+              return prefs.getString(prefKey, defaultValue);
        }
 }

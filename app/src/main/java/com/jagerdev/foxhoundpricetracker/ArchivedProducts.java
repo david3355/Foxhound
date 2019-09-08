@@ -8,7 +8,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.jagerdev.foxhoundpricetracker.products.ProductAdapter;
-import com.jagerdev.foxhoundpricetracker.products.ProductComparator;
+import com.jagerdev.foxhoundpricetracker.products.comparators.ProductComparator;
+import com.jagerdev.foxhoundpricetracker.products.comparators.SortBy;
+import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 
 import java.util.Map;
@@ -16,6 +18,9 @@ import java.util.Map;
 import database.DatabaseException;
 import model.Product;
 import tracker.PriceTrackerService;
+
+import static com.jagerdev.foxhoundpricetracker.MainActivity.PREFS_ASCENDING;
+import static com.jagerdev.foxhoundpricetracker.MainActivity.PREFS_SORTBY;
 
 public class ArchivedProducts extends AppCompatActivity implements AdapterView.OnItemClickListener
 {
@@ -67,6 +72,10 @@ public class ArchivedProducts extends AppCompatActivity implements AdapterView.O
 
        private void setItemsToList()
        {
+              String sortByPref = AndroidUtil.readValueFromPrefs(PREFS_SORTBY, this, SortBy.LAST_ADDED.toString());
+              boolean ascending = Boolean.valueOf(AndroidUtil.readValueFromPrefs(PREFS_ASCENDING, this, "false"));
+
+              final ProductComparator comparator = ProductComparator.buildProductComparator(SortBy.valueOf(sortByPref), ascending);
               final Map<String, Product> products = priceTrackerService.getArchivedProducts();
               runOnUiThread(new Runnable()
               {
@@ -75,7 +84,7 @@ public class ArchivedProducts extends AppCompatActivity implements AdapterView.O
                      {
                             productAdapter.clear();
                             productAdapter.addAll(products.values());
-                            productAdapter.sort(new ProductComparator());
+                            productAdapter.sort(comparator);
                      }
               });
        }

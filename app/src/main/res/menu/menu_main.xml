@@ -10,6 +10,12 @@
         app:actionViewClass="android.widget.SearchView"/>
 
     <item
+        android:id="@+id/menu_sort"
+        android:icon="@drawable/ico_sort"
+        android:title="Sort"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/menu_refresh_products"
         android:title="Refresh all products"
         android:icon="@drawable/refresh"

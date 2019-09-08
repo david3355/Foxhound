@@ -70,7 +70,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        private static final String PREFS_NAME = "com.jagerdev.foxhoundpricetracker.FoxhoundPriceTracker";
        public static final String STATE_DETAILS_PREF_PREFIX_KEY = "product_state_details_";
-       public static final String NOTIF_PREF_PREFIX_KEY = "notif_pref_details_";
        private PriceTrackerService priceTrackerService;
        private PriceTrackerManager priceTrackerManager;
        private ServiceRunHandler svcRunHandler;

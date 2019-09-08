@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/sort_settings_background"
+    android:padding="16dp"
+    android:layout_gravity="center"
+    android:gravity="center">
+
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:text="Sort products by:"
+            />
+
+        <RadioButton
+            android:id="@+id/sort_last_added"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:text="Last time added"/>
+
+        <RadioButton
+            android:id="@+id/sort_product_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:text="Product name"/>
+
+
+        <RadioButton
+            android:id="@+id/sort_last_updated"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:text="Last updated"/>
+
+        <RadioButton
+            android:id="@+id/sort_actual_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:text="Actual price"/>
+
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_sort_ascending"
+            android:layout_width="match_parent"
+            android:layout_weight="0.5"
+            android:layout_height="35dp"
+            android:layout_margin="8dp"
+            android:text="Ascending"
+            android:textSize="12sp"
+            android:padding="7dp"
+            android:background="@drawable/button_default"/>
+
+        <Button
+            android:id="@+id/btn_sort_descending"
+            android:layout_width="match_parent"
+            android:layout_weight="0.5"
+            android:layout_height="35dp"
+            android:text="Descending"
+            android:textSize="12sp"
+            android:padding="7dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/button_default"/>
+
+    </LinearLayout>
+
+</LinearLayout>
