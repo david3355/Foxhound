@@ -951,8 +951,6 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
               switch (id)
               {
-                     case R.id.action_settings:
-                            return true;
                      case R.id.item_remove_product:
                             removeDialog();
                             break;

@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Foxhound</string>
+    <string name="open_navigation_drawer">Open navigation drawer</string>
+    <string name="close_navigation_drawer">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
     <string name="stop_service">Stop tracking prices</string>
     <string name="title_activity_product_editor">Product Info</string>

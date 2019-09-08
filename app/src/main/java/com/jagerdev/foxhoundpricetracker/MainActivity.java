@@ -6,8 +6,13 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -40,14 +45,15 @@ import static com.jagerdev.foxhoundpricetracker.database.DBConstants.DATABASE_NA
 
 public class MainActivity extends AppCompatActivity
         implements OnInvalidInput, PriceTrackEvent, AdapterView.OnItemLongClickListener,
-        AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, View.OnLongClickListener
-{
+        AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, View.OnLongClickListener, NavigationView.OnNavigationItemSelectedListener {
        private ListView list_products;
        private TextView txt_webpage_address, txt_no_products;
        private LinearLayout panel_webpage_address;
        private PriceTrackerService priceTrackerService;
        private ProductAdapter productAdapter;
        private ServiceRunHandler svcRunHandler;
+
+       private DrawerLayout navigationDrawerLayout;
 
        public static int PICKFILE_REQUEST_CODE = 25000;
 
@@ -108,6 +114,16 @@ public class MainActivity extends AppCompatActivity
               super.onCreate(savedInstanceState);
               setContentView(R.layout.activity_main);
               Toolbar toolbar = findViewById(R.id.toolbar);
+              setSupportActionBar(toolbar);
+
+              navigationDrawerLayout = findViewById(R.id.main_drawer_layout);
+              ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, navigationDrawerLayout, toolbar, R.string.open_navigation_drawer, R.string.close_navigation_drawer);
+              navigationDrawerLayout.addDrawerListener(toggle);
+              toggle.syncState();
+
+              NavigationView navigationView = findViewById(R.id.navigation_view);
+              navigationView.setNavigationItemSelectedListener(this);
+
               svcRunHandler = ServiceRunHandler.getInstance();
               svcRunHandler.setDelayMsec(0);
 
@@ -117,7 +133,6 @@ public class MainActivity extends AppCompatActivity
               search_bar_products = findViewById(R.id.search_bar_products);
 //              product_swipe_refresh = findViewById(R.id.product_swipe_refresh);
 //              product_swipe_refresh.setOnRefreshListener(this);
-              setSupportActionBar(toolbar);
 
               FloatingActionButton fab = findViewById(R.id.fab);
               fab.setOnClickListener(new View.OnClickListener()
@@ -158,7 +173,15 @@ public class MainActivity extends AppCompatActivity
 //              if (!AndroidUtil.isServiceRunning(this, TrackerService.class)) startTrackerService();
        }
 
-       private void toggleProductListVisibility()
+    @Override
+    public void onBackPressed() {
+           if (navigationDrawerLayout.isDrawerOpen(GravityCompat.START))
+               navigationDrawerLayout.closeDrawer(GravityCompat.START);
+           else
+               super.onBackPressed();
+    }
+
+    private void toggleProductListVisibility()
        {
               if (productAdapter != null && productAdapter.getCount() > 0) {
                      txt_no_products.setVisibility(View.GONE);
@@ -327,24 +350,14 @@ public class MainActivity extends AppCompatActivity
               //noinspection SimplifiableIfStatement
               switch (id)
               {
-                     case R.id.action_settings:
-                            Intent settingsIntent = new Intent(this, GlobalSettingsActivity.class);
-                            startActivity(settingsIntent);
+                     case R.id.menu_refresh_products:
+                            forceRefreshAllProducts();
                             return true;
                      case R.id.stop_tracking_prices:
                             stopTrackerService();
                             return true;
                      case R.id.search_bar_products:
                             search_bar_products.setVisibility(View.VISIBLE);
-                            break;
-                     case R.id.export_products:
-                            shareDatabaseFile();
-                            break;
-                     case R.id.import_products:
-                            selectFileToImport();
-                            break;
-                     case R.id.archived_products:
-                            startActivity(new Intent(this, ArchivedProducts.class));
                             break;
               }
 
@@ -509,4 +522,25 @@ public class MainActivity extends AppCompatActivity
               }
               return false;
        }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId())
+        {
+            case R.id.nav_archived_products:
+                startActivity(new Intent(this, ArchivedProducts.class));
+                break;
+            case R.id.nav_settings:
+                Intent settingsIntent = new Intent(this, GlobalSettingsActivity.class);
+                startActivity(settingsIntent);
+                break;
+            case R.id.nav_export:
+                shareDatabaseFile();
+                break;
+            case R.id.nav_import:
+                selectFileToImport();
+                break;
+        }
+        return true;
+    }
 }
