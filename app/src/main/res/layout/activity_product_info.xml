@@ -25,6 +25,37 @@
 
 
         <LinearLayout
+            android:id="@+id/panel_product_archived"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:background="@color/colorSpringGreenLight"
+            android:layout_marginBottom="15dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Product is archived"
+                android:textColor="@color/colorFoxhound"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_margin="5dp"/>
+
+            <Button
+                android:id="@+id/btn_unarchive_product"
+                android:layout_width="130dp"
+                android:layout_height="35dp"
+                android:text="Unarchive"
+                android:textColor="@color/colorWhite"
+                android:layout_margin="10dp"
+                android:background="@drawable/foxhound_icon_background"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
@@ -41,36 +72,6 @@
                 android:layout_marginTop="10dp"
                 android:visibility="gone"
                 />
-
-            <LinearLayout
-                android:id="@+id/panel_product_archived"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:background="#dbedff"
-                android:layout_marginBottom="15dp"
-                android:visibility="gone">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Product is archived"
-                    android:textColor="@color/colorFoxhound"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_margin="5dp"/>
-
-                <Button
-                    android:id="@+id/btn_unarchive_product"
-                    android:layout_width="130dp"
-                    android:layout_height="35dp"
-                    android:text="Unarchive"
-                    android:textColor="@color/colorWhite"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/default_foxhound_background"/>
-
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
