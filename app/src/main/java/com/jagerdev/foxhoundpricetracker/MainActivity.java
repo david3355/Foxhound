@@ -388,9 +388,6 @@ public class MainActivity extends AppCompatActivity
                      case R.id.menu_refresh_products:
                             forceRefreshAllProducts();
                             return true;
-                     case R.id.stop_tracking_prices:
-                            stopTrackerService();
-                            return true;
                      case R.id.search_bar_products:
                             search_bar_products.setVisibility(View.VISIBLE);
                             break;
