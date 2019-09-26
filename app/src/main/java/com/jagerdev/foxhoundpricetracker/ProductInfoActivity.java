@@ -157,6 +157,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
               Toolbar product_info_toolbar = findViewById(R.id.product_info_toolbar);
               setSupportActionBar(product_info_toolbar);
+              getSupportActionBar().setDisplayShowTitleEnabled(false);
 
               svcRunHandler = ServiceRunHandler.getInstance();
 

@@ -16,6 +16,12 @@
         app:showAsAction="always"/>
 
     <item
+        android:id="@+id/menu_select"
+        android:icon="@drawable/ico_select"
+        android:title="Select"
+        app:showAsAction="always"/>
+
+    <item
         android:id="@+id/menu_refresh_products"
         android:title="Refresh all products"
         android:icon="@drawable/refresh"
