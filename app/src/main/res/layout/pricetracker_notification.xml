@@ -19,13 +19,13 @@
             >
 
             <TextView
-                style="@style/TextAppearance.AppCompat.Notification.Title"
+                style="@style/TextAppearance.Compat.Notification.Title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="FoxHound"/>
 
             <TextView
-                style="@style/TextAppearance.AppCompat.Notification.Info"
+                style="@style/TextAppearance.Compat.Notification.Info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tracker service is running"/>
