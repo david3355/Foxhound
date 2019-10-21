@@ -9,15 +9,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import androidx.annotation.NonNull;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,20 +21,37 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.jagerdev.foxhoundpricetracker.products.ProductAdapter;
 import com.jagerdev.foxhoundpricetracker.products.comparators.ProductComparator;
 import com.jagerdev.foxhoundpricetracker.products.comparators.SortBy;
+import com.jagerdev.foxhoundpricetracker.products.selector.Tag;
+import com.jagerdev.foxhoundpricetracker.products.selector.TagChangeEvents;
+import com.jagerdev.foxhoundpricetracker.products.selector.TagManager;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
 import com.jagerdev.foxhoundpricetracker.utils.DbFileProvider;
 import com.jagerdev.foxhoundpricetracker.utils.NetworkUtil;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import controllers.validators.OnInvalidInput;
 import database.DatabaseException;
 import model.Product;
+import tracker.PriceTrackerManager;
 import tracker.PriceTrackerService;
 import tracker.clientnotifier.PriceTrackEvent;
 
@@ -51,12 +59,13 @@ import static com.jagerdev.foxhoundpricetracker.database.DBConstants.DATABASE_NA
 
 public class MainActivity extends AppCompatActivity
         implements OnInvalidInput, PriceTrackEvent, AdapterView.OnItemLongClickListener,
-        AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, View.OnLongClickListener, NavigationView.OnNavigationItemSelectedListener {
+        AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, View.OnClickListener, View.OnLongClickListener, NavigationView.OnNavigationItemSelectedListener, TagChangeEvents {
 
     private ListView list_products;
        private TextView txt_webpage_address, txt_no_products;
        private LinearLayout panel_webpage_address;
        private PriceTrackerService priceTrackerService;
+       private PriceTrackerManager priceTrackerManager;
        private ProductAdapter productAdapter;
        private ServiceRunHandler svcRunHandler;
 
@@ -76,6 +85,9 @@ public class MainActivity extends AppCompatActivity
 
        public static final String PREFS_SORTBY = "SORT_BY";
        public static final String PREFS_ASCENDING = "ASCENDING";
+       public static final String PREFS_SELECTOR_TAGS = "SELECTOR_TAGS";
+
+       private TagManager tagManager;
 
        private ServiceConnection trackerSvcConnection = new ServiceConnection()
        {
@@ -190,12 +202,18 @@ public class MainActivity extends AppCompatActivity
               try
               {
                      priceTrackerService = PriceTrackerService.getInstance();
+                     priceTrackerManager = new PriceTrackerManager(this);
               } catch (DatabaseException e)
               {
                      e.printStackTrace();
               }
 
               list_products.setAdapter(productAdapter);
+
+               // TODO default tags?
+
+              List<Tag> savedTags = getSavedSelectedTags();
+              tagManager = new TagManager(this, priceTrackerManager, this, "Select filter tags", savedTags);
 
               startTrackerService();
 
@@ -316,13 +334,14 @@ public class MainActivity extends AppCompatActivity
               final ProductComparator comparator = ProductComparator.buildProductComparator(SortBy.valueOf(sortByPref), ascending);
 
               final Map<String, Product> products = priceTrackerService.getAllProducts();
+              final Map<String, Product> filteredProducts = filterProducts(products);
               runOnUiThread(new Runnable()
               {
                      @Override
                      public void run()
                      {
                             productAdapter.clear();
-                            productAdapter.addAll(products.values());
+                            productAdapter.addAll(filteredProducts.values());
                             productAdapter.sort(comparator);
                             toggleProductListVisibility();
                      }
@@ -446,6 +465,10 @@ public class MainActivity extends AppCompatActivity
                      case R.id.search_bar_products:
                             search_bar_products.setVisibility(View.VISIBLE);
                             break;
+                  case R.id.menu_select:
+                          List<Tag> savedTags = getSavedSelectedTags();
+                          tagManager.showSelectDialog(savedTags);
+                          break;
               }
 
               return super.onOptionsItemSelected(item);
@@ -659,5 +682,54 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
         return true;
+    }
+
+    private List<Tag> getSavedSelectedTags()
+    {
+        List<String> savedTags = AndroidUtil.readListFromPrefs(PREFS_SELECTOR_TAGS, this, new ArrayList<String>());
+        List<Tag> tags = new ArrayList<>();
+        for (String tagName : savedTags) tags.add(new Tag(tagName));
+        return tags;
+    }
+
+    private Map<String, Product> filterProducts(Map<String, Product> products)
+    {
+        Map<String, Product> filteredProducts = new HashMap<>();
+        List<Tag> selectedTags = tagManager.getSelectedTags();
+        if (selectedTags.size() == 0) return products;
+        for (String productId : products.keySet()) {
+            List<String> productTags = priceTrackerManager.getProductTags(productId);
+            for (Tag selectedTag : selectedTags)
+            {
+                if (productTags.contains(selectedTag.getTagName()))
+                {
+                    Product p = products.get(productId);
+                    if (!filteredProducts.containsKey(productId)) filteredProducts.put(productId, p);
+                }
+            }
+        }
+        return filteredProducts;
+    }
+
+    private void doFiltering()
+    {
+        AndroidUtil.saveListToPrefs(PREFS_SELECTOR_TAGS, this, tagManager.getSelectedTagNames());
+        setItemsToList();
+        if (productAdapter != null) productAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void tagChosen(Tag chosenTag, boolean alreadySelected) {
+        doFiltering();
+    }
+
+    @Override
+    public void chosenTagRemoved(Tag removedTag) {
+        doFiltering();
+    }
+
+    @Override
+    public void tagDeleted(Tag deletedTag) {
+
     }
 }

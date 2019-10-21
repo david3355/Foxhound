@@ -1,14 +1,19 @@
 package com.jagerdev.foxhoundpricetracker;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,9 +44,15 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.jagerdev.foxhoundpricetracker.products.Frequency;
 import com.jagerdev.foxhoundpricetracker.products.UniqueSelector;
 import com.jagerdev.foxhoundpricetracker.products.UniversalPriceParser;
+import com.jagerdev.foxhoundpricetracker.products.selector.Tag;
+import com.jagerdev.foxhoundpricetracker.products.selector.TagChangeEvents;
+import com.jagerdev.foxhoundpricetracker.products.selector.TagManager;
+import com.jagerdev.foxhoundpricetracker.products.selector.TagSelectorAdapter;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 import com.jagerdev.foxhoundpricetracker.utils.chart.HistoryChartMarkerView;
@@ -65,7 +76,7 @@ import tracker.clientnotifier.PriceTrackEvent;
 
 import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
 
-public class ProductInfoActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, PriceTrackEvent, OnChartValueSelectedListener
+public class ProductInfoActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, PriceTrackEvent, OnChartValueSelectedListener, TagChangeEvents
 {
 
        private static final String PREFS_NAME = "com.jagerdev.foxhoundpricetracker.FoxhoundPriceTracker";
@@ -118,6 +129,12 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private Button btn_parse_preview;
 
        private TextView txt_price_integer_part, txt_price_fraction_part;
+
+       private LinearLayout panel_manage_tags;
+       private TextView txtNoTags;
+       private ChipGroup productTags;
+
+       private TagManager tagManager;
 
        @Override
        protected void onResume()
@@ -222,6 +239,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_parse_preview = findViewById(R.id.btn_parse_preview);
               dropdown_delimiters = findViewById(R.id.dropdown_delimiters);
               edit_custom_separator = findViewById(R.id.edit_custom_separator);
+              panel_manage_tags = findViewById(R.id.panel_manage_tags);
+              txtNoTags = findViewById(R.id.txt_no_tags);
+              productTags = findViewById(R.id.chip_group_product_tags);
 
               chart = findViewById(R.id.price_history_chart);
 
@@ -245,6 +265,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_parse_preview.setOnClickListener(this);
               btn_mark_bought.setOnClickListener(this);
               btn_unarchive_product.setOnClickListener(this);
+              panel_manage_tags.setOnClickListener(this);
 
               // TODO set notificationSettings properties from loading database
 
@@ -294,6 +315,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               edit_product_inspect_unit.setSelection(frequency.getIndex());
 
               edit_product_name.requestFocus();
+
+              tagManager = new TagManager(this, priceTrackerManager, this, "Assign tags for this product");
+              loadAssignedTags();
        }
 
        private String textOrEmpty(Object txt)
@@ -451,6 +475,78 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               SharedPreferences.Editor prefs = this.getSharedPreferences(PREFS_NAME, 0).edit();
               prefs.remove(prefKey + respectiveProduct.getId());
               prefs.apply();
+       }
+
+       private void loadAssignedTags()
+       {
+              productTags.removeAllViews();
+              List<String> assignedTags = priceTrackerManager.getProductTags(respectiveProduct.getId());
+              for (String tag : assignedTags)
+              {
+                     addTagToGroup(new Tag(tag));
+              }
+
+       }
+
+       private List<Tag> getAssignedTags()
+       {
+              List<String> assignedTags = priceTrackerManager.getProductTags(respectiveProduct.getId());
+              List<Tag> tags = new ArrayList<>();
+              for (String tagName : assignedTags) tags.add(new Tag(tagName));
+              return tags;
+       }
+
+       private void setTagViews()
+       {
+              if (productTags.getChildCount() > 0) txtNoTags.setVisibility(View.GONE);
+              else txtNoTags.setVisibility(View.VISIBLE);
+       }
+
+       View.OnClickListener onRemoveTag = new View.OnClickListener() {
+              @Override
+              public void onClick(View v) {
+                     String tagName = ((Chip)v).getText().toString();
+                     revokeTagFromProduct(tagName);
+                     productTags.removeView(v);
+              }
+       };
+
+       private void revokeTagFromProduct(String tagName)
+       {
+              priceTrackerManager.revokeTagFromProduct(respectiveProduct.getId(), tagName);
+       }
+
+       private void addTagToGroup(Tag newTag)
+       {
+              Chip tag = new Chip(this);
+              tag.setText(newTag.getTagName());
+              tag.setCloseIconVisible(true);
+              tag.setCheckable(false);
+              tag.setClickable(false);
+              tag.setOnCloseIconClickListener(onRemoveTag);
+              productTags.addView(tag);
+              setTagViews();
+       }
+
+       @Override
+       public void tagChosen(Tag chosenTag, boolean alreadySelected) {
+              if (!alreadySelected) {
+                     priceTrackerManager.appendTagToProduct(respectiveProduct.getId(), chosenTag.getTagName());
+                     addTagToGroup(chosenTag);
+              }
+       }
+
+       @Override
+       public void chosenTagRemoved(Tag removedTag) {
+              revokeTagFromProduct(removedTag.getTagName());
+              setTagViews();
+       }
+
+       @Override
+       public void tagDeleted(Tag deletedTag) {
+              Chip tagChip = tagManager.getSelectedTagChip(deletedTag, productTags);
+              productTags.removeView(tagChip);
+              // TODO remove from chosen tags view
        }
 
        enum ProductStatus
@@ -1025,6 +1121,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                             break;
                      case R.id.btn_unarchive_product:
                             unarchiveProduct();
+                     case R.id.panel_manage_tags:
+                            tagManager.showSelectDialog(getAssignedTags());
+                            break;
               }
        }
 

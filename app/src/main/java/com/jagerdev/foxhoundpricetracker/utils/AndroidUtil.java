@@ -11,6 +11,10 @@ import android.net.Uri;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+
 import static com.jagerdev.foxhoundpricetracker.MainActivity.PICKFILE_REQUEST_CODE;
 
 public class AndroidUtil
@@ -103,5 +107,18 @@ public class AndroidUtil
        {
               SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
               return prefs.getString(prefKey, defaultValue);
+       }
+
+       public static void saveListToPrefs(String prefKey, Context context, List<String> value)
+       {
+              SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
+              prefs.putStringSet(prefKey, new HashSet<String>(value));
+              prefs.apply();
+       }
+
+       public static List<String> readListFromPrefs(String prefKey, Context context, List<String> defaultValue)
+       {
+              SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+              return new ArrayList<>(prefs.getStringSet(prefKey, new HashSet<>(defaultValue)));
        }
 }
