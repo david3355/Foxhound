@@ -55,6 +55,8 @@
 
         </LinearLayout>
 
+        <include layout="@layout/disconnected_panel" />
+
         <TextView
             android:id="@+id/txt_no_products"
             android:layout_width="match_parent"

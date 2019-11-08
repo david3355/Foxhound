@@ -1,6 +1,7 @@
 package com.jagerdev.foxhoundpricetracker.products;
 
 import model.Product;
+import tracker.ProductAvailability;
 
 public class NotificationConfirmer
 {
@@ -30,13 +31,13 @@ public class NotificationConfirmer
               return false;
        }
 
-       public static boolean shouldSendAvailabilityUpdateNotification(Product product, boolean newAvailability)
+       public static boolean shouldSendAvailabilityUpdateNotification(Product product, ProductAvailability newAvailability)
        {
               if (product.notifyWhenAvailabilityChanges() == null || product.notifyWhenAvailabilityChanges())
                      return true;
-              if (product.notifyWhenAvailable() != null  && product.notifyWhenAvailable() && newAvailability)
+              if (product.notifyWhenAvailable() != null  && product.notifyWhenAvailable() && newAvailability.getValue())
                      return true;
-              if (product.notifyWhenUnavailable() != null && product.notifyWhenUnavailable() && !newAvailability)
+              if (product.notifyWhenUnavailable() != null && product.notifyWhenUnavailable() && !newAvailability.getValue())
                      return true;
 
               return false;

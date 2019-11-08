@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,6 +65,7 @@ import java.util.List;
 import java.util.Locale;
 
 import controllers.exceptions.ImproperPathSelectorException;
+import controllers.exceptions.InternetConnectionException;
 import controllers.exceptions.PathForProductNotFoundException;
 import controllers.exceptions.SourcePageNotAvailableException;
 import controllers.validators.OnInvalidInput;
@@ -72,6 +74,7 @@ import model.Product;
 import model.ProductSnapshot;
 import tracker.PriceTrackerManager;
 import tracker.PriceTrackerService;
+import tracker.ProductAvailability;
 import tracker.clientnotifier.PriceTrackEvent;
 
 import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
@@ -103,6 +106,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        private TextView txt_product_details_sign, txt_product_status_details;
        private CheckBox check_do_not_check_product;
        private ImageButton btn_mark_bought;
+       private RelativeLayout panel_disconnected;
 
        private LineChart chart;
        private UniversalPriceParser priceParser = UniversalPriceParser.getInstance();
@@ -242,6 +246,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               panel_manage_tags = findViewById(R.id.panel_manage_tags);
               txtNoTags = findViewById(R.id.txt_no_tags);
               productTags = findViewById(R.id.chip_group_product_tags);
+              panel_disconnected = findViewById(R.id.panel_disconnected);
 
               chart = findViewById(R.id.price_history_chart);
 
@@ -280,6 +285,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
               String productId = getIntent().getStringExtra("product_id");
               boolean archived = getIntent().getBooleanExtra("is_archived", false);
+              boolean disconnected = getIntent().getBooleanExtra("disconnected", false);
 
               respectiveProduct = archived ? priceTrackerService.getArchivedProduct(productId) : priceTrackerService.getProduct(productId); // what if product archived
 
@@ -293,10 +299,13 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               edit_product_price.setText(respectiveProduct.getActualPrice());
               txt_product_actual_price.setText(respectiveProduct.getActualPrice());
               edit_product_inspect_freq.setText(String.valueOf(frequency.frequency));
-              setAvailability(respectiveProduct.isAvailableNow() ? ProductStatus.AVAILABLE : ProductStatus.NOT_AVAILABLE);
+
+              setAvailability(respectiveProduct.isAvailableNow() ? ProductAvailability.AVAILABLE : ProductAvailability.NOT_AVAILABLE, null);
               setBoughtButton();
+              panel_disconnected.setVisibility(disconnected ? View.VISIBLE : View.GONE);
+
               txt_product_status_details.setText(readStateDetailsPrefs(STATE_DETAILS_PREF_PREFIX_KEY,"Error details are not available yet!"));
-              if (!respectiveProduct.isAvailableNow())
+              if (!respectiveProduct.isAvailableNow() || panel_disconnected.getVisibility() == View.VISIBLE)
                      txt_product_details_sign.setVisibility(View.VISIBLE);
               else txt_product_details_sign.setVisibility(View.GONE);
 
@@ -394,25 +403,17 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        }
 
        @Override
-       public void availabilityChecked(final boolean previouslyAvailable, final boolean available, final Product product, final Exception error)
+       public void availabilityChecked(final boolean previouslyAvailable, final ProductAvailability availability, final Product product, final Exception error)
        {
               if (!respectiveProduct.getId().equals(product.getId())) return;
-              Log.d(this.getClass().getName(), String.format("Availability for %s. Available: %s", product.getName(), available));
+              Log.d(this.getClass().getName(), String.format("Availability for %s. Available: %s", product.getName(), availability.getText()));
+
               runOnUiThread(new Runnable()
               {
                      @Override
                      public void run()
                      {
-                            setAvailability(available ? ProductStatus.AVAILABLE : ProductStatus.NOT_AVAILABLE);
-                            txt_product_details_sign.setVisibility(available ? View.GONE : View.VISIBLE);
-                            if (!available)
-                            {
-                                   if (error != null)
-                                          txt_product_status_details.setText(error.getMessage());
-                            } else
-                            {
-                                   txt_product_status_details.setVisibility(View.GONE);
-                            }
+                            setAvailability(availability, error);
                      }
               });
        }
@@ -549,23 +550,29 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               // TODO remove from chosen tags view
        }
 
-       enum ProductStatus
-       {
-              AVAILABLE,
-              NOT_AVAILABLE
-       }
-
-       private void setAvailability(ProductStatus status)
+       private void setAvailability(ProductAvailability status, Exception error)
        {
               switch (status)
               {
                      case AVAILABLE:
                             txt_product_status.setText("Available");
+                            panel_disconnected.setVisibility(View.GONE);
+                            txt_product_details_sign.setVisibility(View.GONE);
                             txt_product_status.setTextColor(getResources().getColor(R.color.colorSpringGreen));
+                            txt_product_status_details.setVisibility(View.GONE);
                             break;
                      case NOT_AVAILABLE:
                             txt_product_status.setText("Not available");
+                            panel_disconnected.setVisibility(View.GONE);
+                            txt_product_details_sign.setVisibility(View.VISIBLE);
                             txt_product_status.setTextColor(getResources().getColor(R.color.colorRed));
+                            if (error != null) txt_product_status_details.setText(error.getMessage());
+                            break;
+                     case NO_INTERNET:
+                            panel_disconnected.setVisibility(View.VISIBLE);
+                            txt_product_details_sign.setVisibility(View.VISIBLE);
+                            if (error != null) txt_product_status_details.setText(error.getMessage());
+                            Toast.makeText(ProductInfoActivity.this, "Failed to check product. No internet connection.", Toast.LENGTH_SHORT).show();
                             break;
               }
               setBoughtStatus();
@@ -954,7 +961,12 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                                                  consolidateProductKeyProperties();
                                           }
                                    });
-                            } catch (ImproperPathSelectorException e)
+                            } catch (InternetConnectionException ie)
+                            {
+                                   showInfo(ie.getMessage());
+                                   ie.printStackTrace();
+                            }
+                            catch (ImproperPathSelectorException e)
                             {
                                    showInfo(e.getMessage());
                                    e.printStackTrace();
@@ -1151,7 +1163,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        private void toggleProductAvailabilityStatusDetails()
        {
-              if (respectiveProduct.isAvailableNow()) return;
+              if (respectiveProduct.isAvailableNow() && panel_disconnected.getVisibility() != View.VISIBLE) return;
               if (txt_product_status_details.getVisibility() == View.GONE)
                      txt_product_status_details.setVisibility(View.VISIBLE);
               else txt_product_status_details.setVisibility(View.GONE);

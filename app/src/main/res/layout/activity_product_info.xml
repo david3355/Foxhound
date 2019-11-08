@@ -23,6 +23,7 @@
             app:titleTextColor="@color/colorWhite"
             />
 
+        <include layout="@layout/disconnected_panel" />
 
         <LinearLayout
             android:id="@+id/panel_product_archived"

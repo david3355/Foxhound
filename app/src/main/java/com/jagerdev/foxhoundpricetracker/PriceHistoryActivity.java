@@ -20,6 +20,7 @@ import database.DatabaseException;
 import model.Product;
 import model.ProductSnapshot;
 import tracker.PriceTrackerService;
+import tracker.ProductAvailability;
 import tracker.clientnotifier.PriceTrackEvent;
 
 public class PriceHistoryActivity extends AppCompatActivity implements PriceTrackEvent
@@ -129,7 +130,7 @@ public class PriceHistoryActivity extends AppCompatActivity implements PriceTrac
        }
 
        @Override
-       public void availabilityChecked(boolean b, boolean b1, Product product, Exception e)
+       public void availabilityChecked(boolean b, ProductAvailability b1, Product product, Exception e)
        {
 
        }

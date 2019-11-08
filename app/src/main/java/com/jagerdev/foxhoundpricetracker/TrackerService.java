@@ -12,6 +12,7 @@ import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
 
 import model.Product;
 import tracker.PriceTrackerService;
+import tracker.ProductAvailability;
 import tracker.clientnotifier.PriceTrackEvent;
 import utility.logger.CommonLogger;
 import utility.logger.PriceTrackerLogger;
@@ -114,13 +115,15 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        }
 
        @Override
-       public void availabilityChecked(boolean previouslyAvailable, boolean available, Product product, Exception error)
+       public void availabilityChecked(boolean previouslyAvailable, ProductAvailability availability, Product product, Exception error)
        {
               ProductInfoActivity.saveStateDetailsToPrefs(ProductInfoActivity.STATE_DETAILS_PREF_PREFIX_KEY, this, product, error != null ? error.getMessage() : "");
-              if (previouslyAvailable != available && NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, available))
+              if (availability != ProductAvailability.NO_INTERNET &&
+                      previouslyAvailable != availability.getValue() &&
+                      NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, availability))
               {
-                     int iconResource = available ? R.drawable.available : R.drawable.not_available;
-                     notificationHelper.sendNotification(this, product.getId(), product.getName(), available ? "Available" : "Not available", iconResource, available);
+                     int iconResource = availability.getValue() ? R.drawable.available : R.drawable.not_available;
+                     notificationHelper.sendNotification(this, product.getId(), product.getName(), availability.getValue() ? "Available" : "Not available", iconResource, availability.getValue());
               }
        }
 

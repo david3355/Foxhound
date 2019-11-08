@@ -27,6 +27,7 @@ import com.jagerdev.foxhoundpricetracker.products.ProductRegisteredEvent;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 
 import controllers.exceptions.ImproperPathSelectorException;
+import controllers.exceptions.InternetConnectionException;
 import controllers.exceptions.PathForProductNotFoundException;
 import controllers.exceptions.SourcePageNotAvailableException;
 import controllers.validators.OnInvalidInput;
@@ -230,7 +231,12 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                                    priceTrackerManager.registerNewItem(productPrice, productWebPath, productName, productInspectFreq, productIFUnit, doNotTrackPrice);
                                    showInfo(context, String.format("%s is added to tracked items: %s. Checking period: %s %s", productName, productPrice, productInspectFreq, productIFUnit));
                                    eventHandler.onRegisteredSuccessfully();
-                            } catch (ImproperPathSelectorException e)
+                            }
+                            catch (InternetConnectionException ie)
+                            {
+                                   showInfo(context, ie.getMessage());
+                                   ie.printStackTrace();
+                            }catch (ImproperPathSelectorException e)
                             {
                                    showInfo(context, e.getMessage());
                             } catch (SourcePageNotAvailableException e)

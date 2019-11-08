@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import org.restlet.data.Status;
 
 import controllers.exceptions.ImproperPathSelectorException;
+import controllers.exceptions.InternetConnectionException;
 import controllers.exceptions.PathForProductNotFoundException;
 import controllers.exceptions.SourcePageNotAvailableException;
 import controllers.validators.OnInvalidInput;
@@ -73,7 +74,8 @@ public class MiniRESTServer extends NanoHTTPD
                             Response resp = newFixedLengthResponse(respData);
                             resp.addHeader("Access-Control-Allow-Origin", "*");
                             return resp;
-                     } catch (SourcePageNotAvailableException e)
+                     }
+                     catch (InternetConnectionException | SourcePageNotAvailableException e)
                      {
                             logger.warning("Cannot add new product on REST API: %s. Details: %s", targetName, e.getMessage());
                             return buildResponse(e.getMessage(), Status.CLIENT_ERROR_BAD_REQUEST);

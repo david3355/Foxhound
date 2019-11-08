@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,6 +54,7 @@ import database.DatabaseException;
 import model.Product;
 import tracker.PriceTrackerManager;
 import tracker.PriceTrackerService;
+import tracker.ProductAvailability;
 import tracker.clientnotifier.PriceTrackEvent;
 
 import static com.jagerdev.foxhoundpricetracker.database.DBConstants.DATABASE_NAME;
@@ -68,6 +70,7 @@ public class MainActivity extends AppCompatActivity
        private PriceTrackerManager priceTrackerManager;
        private ProductAdapter productAdapter;
        private ServiceRunHandler svcRunHandler;
+       private RelativeLayout panel_disconnected;
 
        private DrawerLayout navigationDrawerLayout;
        private MenuItem nav_pricetracker_service, nav_webpage_service;
@@ -172,6 +175,7 @@ public class MainActivity extends AppCompatActivity
               panel_webpage_address = findViewById(R.id.panel_webpage_address);
               txt_webpage_address = findViewById(R.id.txt_webpage_address);
               search_bar_products = findViewById(R.id.search_bar_products);
+              panel_disconnected = findViewById(R.id.panel_disconnected);
 //              product_swipe_refresh = findViewById(R.id.product_swipe_refresh);
 //              product_swipe_refresh.setOnRefreshListener(this);
 
@@ -533,9 +537,33 @@ public class MainActivity extends AppCompatActivity
        }
 
        @Override
-       public void availabilityChecked(final boolean previouslyAvailable, final boolean available, final Product product, Exception error)
+       public void availabilityChecked(final boolean previouslyAvailable, final ProductAvailability availability, final Product product, Exception error)
        {
-              if (previouslyAvailable != available)
+              if (availability == ProductAvailability.NO_INTERNET)
+              {
+                  runOnUiThread(new Runnable()
+                  {
+                      @Override
+                      public void run()
+                      {
+                          panel_disconnected.setVisibility(View.VISIBLE);
+                          Toast.makeText(MainActivity.this, String.format("No internet connection. Failed to check product: %s", product.getName()), Toast.LENGTH_SHORT).show();
+                      }
+                  });
+                  return;
+              }
+              else {
+                  runOnUiThread(new Runnable()
+                  {
+                      @Override
+                      public void run()
+                      {
+                        panel_disconnected.setVisibility(View.GONE);
+                      }
+                  });
+              }
+
+              if (previouslyAvailable != availability.getValue())
               {
                      runOnUiThread(new Runnable()
                      {
@@ -543,7 +571,7 @@ public class MainActivity extends AppCompatActivity
                             public void run()
                             {
                                    productAdapter.notifyDataSetChanged();
-                                   Toast.makeText(MainActivity.this, String.format("%s became %s", product.getName(), available ? "available" : "not available"), Toast.LENGTH_SHORT).show();
+                                   Toast.makeText(MainActivity.this, String.format("%s became %s", product.getName(), availability.getText()), Toast.LENGTH_SHORT).show();
                             }
                      });
               }
@@ -592,6 +620,7 @@ public class MainActivity extends AppCompatActivity
               Product product = (Product) adapterView.getItemAtPosition(i);
               Intent editProductActivity = new Intent(this, ProductInfoActivity.class);
               editProductActivity.putExtra("product_id", product.getId());
+              editProductActivity.putExtra("disconnected", panel_disconnected.getVisibility() == View.VISIBLE);
               startActivity(editProductActivity);
        }
 
