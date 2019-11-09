@@ -14,8 +14,8 @@ public class ActualPriceComparator extends ProductComparator {
 
     @Override
     public int compare(Product a, Product b) {
-        double price1 = parser.getPrice(a.getActualPrice(), a.getDecimalSeparator());
-        double price2 = parser.getPrice(b.getActualPrice(), b.getDecimalSeparator());
+        double price1 = parser.getPrice(a.getActualPrice(), a.getDecimalSeparator(), 0);
+        double price2 = parser.getPrice(b.getActualPrice(), b.getDecimalSeparator(), 0);
         return Double.compare(price1, price2) * getSign();
     }
 }

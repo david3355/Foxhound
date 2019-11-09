@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import model.Product;
+import tracker.ProductAvailability;
 
 public class NotificationConfirmerTest
 {
@@ -15,7 +16,7 @@ public class NotificationConfirmerTest
        public void setUp()
        {
               product = new Product("id", "name", "http://test", "100.0", "selector", true, 0, DateTime.now(), DateTime.now(), 0,
-                      false, null, null, null, null, false, false, false, null);
+                      false, null, null, null, null, false, false, false, null, false, false, false);
        }
 
        @Test
@@ -142,8 +143,7 @@ public class NotificationConfirmerTest
 public void shouldSendAvailabilityUpdateNotificationProductAvailable()
 {
        product.setNotifyWhenAvailable(true);
-       boolean newAvailability = true;
-       boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, newAvailability);
+       boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, ProductAvailability.AVAILABLE);
        Assert.assertTrue(shouldSendNotification);
 }
 
@@ -151,8 +151,7 @@ public void shouldSendAvailabilityUpdateNotificationProductAvailable()
        public void shouldNotSendAvailabilityUpdateNotificationProductAvailable()
        {
               product.setNotifyWhenAvailable(true);
-              boolean newAvailability = false;
-              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, newAvailability);
+              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, ProductAvailability.NOT_AVAILABLE);
               Assert.assertFalse(shouldSendNotification);
        }
 
@@ -160,8 +159,7 @@ public void shouldSendAvailabilityUpdateNotificationProductAvailable()
        public void shouldSendAvailabilityUpdateNotificationProductUnavailable()
        {
               product.setNotifyWhenUnavailable(true);
-              boolean newAvailability = false;
-              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, newAvailability);
+              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, ProductAvailability.NOT_AVAILABLE);
               Assert.assertTrue(shouldSendNotification);
        }
 
@@ -169,8 +167,7 @@ public void shouldSendAvailabilityUpdateNotificationProductAvailable()
        public void shouldNotSendAvailabilityUpdateNotificationProductUnavailable()
        {
               product.setNotifyWhenUnavailable(true);
-              boolean newAvailability = true;
-              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, newAvailability);
+              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, ProductAvailability.AVAILABLE);
               Assert.assertFalse(shouldSendNotification);
        }
 
@@ -178,8 +175,7 @@ public void shouldSendAvailabilityUpdateNotificationProductAvailable()
        public void shouldSendAvailabilityUpdateNotificationGlobally()
        {
               product.setNotifyWhenAvailabilityChanges(true);
-              boolean newAvailability = true;
-              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, newAvailability);
+              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, ProductAvailability.AVAILABLE);
               Assert.assertTrue(shouldSendNotification);
        }
 
@@ -187,8 +183,7 @@ public void shouldSendAvailabilityUpdateNotificationProductAvailable()
        public void shouldNotSendAvailabilityUpdateNotificationGlobally()
        {
               product.setNotifyWhenAvailabilityChanges(false);
-              boolean newAvailability = true;
-              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, newAvailability);
+              boolean shouldSendNotification = NotificationConfirmer.shouldSendAvailabilityUpdateNotification(product, ProductAvailability.AVAILABLE);
               Assert.assertFalse(shouldSendNotification);
        }
 }

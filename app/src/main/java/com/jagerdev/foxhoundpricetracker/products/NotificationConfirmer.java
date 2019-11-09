@@ -13,8 +13,8 @@ public class NotificationConfirmer
 
        public static boolean shouldSendPriceUpdateNotification(Product product, String oldPrice, String newQueriedPrice)
        {
-              double parsedNewPrice = priceParser.getPrice(newQueriedPrice, product.getDecimalSeparator());
-              double parsedActualPrice = priceParser.getPrice(oldPrice, product.getDecimalSeparator());
+              double parsedNewPrice = priceParser.getPrice(newQueriedPrice, product.getDecimalSeparator(), 0);
+              double parsedActualPrice = priceParser.getPrice(oldPrice, product.getDecimalSeparator(), 0);
               if (product.notifyWhenPriceChanges() == null || product.notifyWhenPriceChanges())
                      return true;
               if (product.getNotifyWhenPriceGoesAbove() != null && parsedNewPrice >= product.getNotifyWhenPriceGoesAbove())

@@ -53,7 +53,6 @@ import com.jagerdev.foxhoundpricetracker.products.UniversalPriceParser;
 import com.jagerdev.foxhoundpricetracker.products.selector.Tag;
 import com.jagerdev.foxhoundpricetracker.products.selector.TagChangeEvents;
 import com.jagerdev.foxhoundpricetracker.products.selector.TagManager;
-import com.jagerdev.foxhoundpricetracker.products.selector.TagSelectorAdapter;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
 import com.jagerdev.foxhoundpricetracker.utils.chart.HistoryChartMarkerView;
@@ -585,7 +584,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
        private void setPriceParts(String priceString, Character decimalSeparator)
        {
-              double parsedPrice = priceParser.getPrice(priceString, decimalSeparator);
+              double parsedPrice = priceParser.getPrice(priceString, decimalSeparator, 0);
               int integerPart = (int) parsedPrice;
               double fractionPart = parsedPrice - integerPart;
               txt_price_integer_part.setText(String.valueOf(integerPart));
@@ -722,7 +721,7 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
 
               for (ProductSnapshot snapshot : uniqueHistory)
               {
-                     double parsedPrice = priceParser.getPrice(snapshot.getPrice(), respectiveProduct.getDecimalSeparator());
+                     double parsedPrice = priceParser.getPrice(snapshot.getPrice(), respectiveProduct.getDecimalSeparator(), 0);
                      Entry entry = new Entry(snapshot.getDateOfSnapshot().getMillis(), (float) parsedPrice);
                      values.add(entry);
               }

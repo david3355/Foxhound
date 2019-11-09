@@ -7,6 +7,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.jagerdev.foxhoundpricetracker.products.NotificationConfirmer;
+import com.jagerdev.foxhoundpricetracker.products.UniversalPriceParser;
+import com.jagerdev.foxhoundpricetracker.products.selector.PriceParseException;
 import com.jagerdev.foxhoundpricetracker.utils.NotificationHelper;
 import com.jagerdev.foxhoundpricetracker.utils.TrackerInitializer;
 
@@ -35,6 +37,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
 
        private static final int NOTIFICATION_ID = 10;
        public static final String START_IN_FOREGROUND = "start_in_foreground";
+       private UniversalPriceParser priceParser = UniversalPriceParser.getInstance();
 
        public class TrackerServiceBinder extends Binder
        {
@@ -110,7 +113,27 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
        {
               if (NotificationConfirmer.shouldSendPriceUpdateNotification(product, oldPrice, newPrice))
               {
-                     notificationHelper.sendNotification(this, product.getId(), product.getName(), String.format("New price: %s", newPrice), R.drawable.price_change, false);
+                     int notifIconRes;
+                     String extraNotifInfo = "Price changed";
+                     try {
+                            double parsedOldPrice = priceParser.getPrice(oldPrice, product.getDecimalSeparator());
+                            double parsedNewPrice = priceParser.getPrice(oldPrice, product.getDecimalSeparator());
+                            if (parsedNewPrice > parsedOldPrice)
+                            {
+                                   notifIconRes = R.drawable.up;
+                                   extraNotifInfo = "Price increased";
+                            } else
+                            {
+                                   notifIconRes = R.drawable.down;
+                                   extraNotifInfo = "Price decreased";
+                            }
+
+
+                     } catch (PriceParseException e) {
+                            notifIconRes = R.drawable.price_change;
+                     }
+
+                     notificationHelper.sendNotification(this, product.getId(), product.getName(), String.format("%s. New price: %s", extraNotifInfo, newPrice), notifIconRes, false);
               }
        }
 

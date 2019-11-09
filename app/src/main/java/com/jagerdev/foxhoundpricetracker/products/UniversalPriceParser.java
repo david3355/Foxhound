@@ -1,5 +1,7 @@
 package com.jagerdev.foxhoundpricetracker.products;
 
+import com.jagerdev.foxhoundpricetracker.products.selector.PriceParseException;
+
 public class UniversalPriceParser
 {
        public UniversalPriceParser()
@@ -16,8 +18,37 @@ public class UniversalPriceParser
               return instance;
        }
 
-       public double getPrice(String rawPrice, Character decimalPointSeparatorCharacter)
+    /**
+     * Tries to parse a given price string and returns it, or the given default value in case of parsing error
+     * @param rawPrice Price to be parsed
+     * @param decimalPointSeparatorCharacter Decimal separator character
+     * @param defaultValue Default value to be returned in case of parsing error
+     * @return Parsed price
+     */
+       public double getPrice(String rawPrice, Character decimalPointSeparatorCharacter, double defaultValue)
        {
+              try
+              {
+                     return parsePrice(rawPrice, decimalPointSeparatorCharacter);
+              } catch (Exception e)
+              {
+                     return defaultValue;
+              }
+
+       }
+
+    /**
+     * Tries to parse a given price string and returns it or throws parsing error
+     * @param rawPrice Price to be parsed
+     * @param decimalPointSeparatorCharacter Decimal separator character
+     * @return Parsed price
+     * @throws PriceParseException
+     */
+       public double getPrice(String rawPrice, Character decimalPointSeparatorCharacter) throws PriceParseException {
+              return parsePrice(rawPrice, decimalPointSeparatorCharacter);
+       }
+
+       private double parsePrice(String rawPrice, Character decimalPointSeparatorCharacter) throws PriceParseException {
               if (decimalPointSeparatorCharacter == null)
                      decimalPointSeparatorCharacter = findOutDecimalCharacter(rawPrice);
               String cleanedPrice = removeAllNonNumberCharacters(rawPrice, decimalPointSeparatorCharacter);
@@ -73,14 +104,13 @@ public class UniversalPriceParser
               return filtered.toString();
        }
 
-       private double parseCleanPrice(String price)
-       {
+       private double parseCleanPrice(String price) throws PriceParseException {
               try
               {
                      return Double.parseDouble(price);
               } catch (Exception e)
               {
-                     return 0;
+                     throw new PriceParseException(String.format("Cannot parse price: %s. Reason: %s", price, e.getMessage()));
               }
        }
 }
