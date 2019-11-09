@@ -78,7 +78,7 @@ import tracker.clientnotifier.PriceTrackEvent;
 
 import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
 
-public class ProductInfoActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, PriceTrackEvent, OnChartValueSelectedListener, TagChangeEvents
+public class ProductInfoActivity extends AppCompatActivity implements View.OnClickListener, View.OnLongClickListener, OnInvalidInput, PriceTrackEvent, OnChartValueSelectedListener, TagChangeEvents
 {
 
        private static final String PREFS_NAME = "com.jagerdev.foxhoundpricetracker.FoxhoundPriceTracker";
@@ -270,6 +270,8 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
               btn_mark_bought.setOnClickListener(this);
               btn_unarchive_product.setOnClickListener(this);
               panel_manage_tags.setOnClickListener(this);
+              txt_product_actual_price.setOnClickListener(this);
+              txt_product_actual_price.setOnLongClickListener(this);
 
               // TODO set notificationSettings properties from loading database
 
@@ -1135,6 +1137,9 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
                      case R.id.panel_manage_tags:
                             tagManager.showSelectDialog(getAssignedTags());
                             break;
+                     case R.id.txt_product_actual_price:
+                            Toast.makeText(ProductInfoActivity.this, String.format("HTML path: %s", respectiveProduct.getPriceHtmlPathSelector()), Toast.LENGTH_SHORT).show();
+                            break;
               }
        }
 
@@ -1212,5 +1217,18 @@ public class ProductInfoActivity extends AppCompatActivity implements View.OnCli
        public void invalidInput(Object o, String s)
        {
               showInfo(String.format("INVALID INPUT for %s. Details: %s", o.toString(), s));
+       }
+
+       @Override
+       public boolean onLongClick(View v) {
+              switch (v.getId())
+              {
+                     case R.id.txt_product_actual_price:
+                            AndroidUtil.setClipboardText(this, respectiveProduct.getPriceHtmlPathSelector());
+                            showClipboardCopyMsg(respectiveProduct.getPriceHtmlPathSelector());
+                            return true;
+                     default:
+                            return true;
+              }
        }
 }
