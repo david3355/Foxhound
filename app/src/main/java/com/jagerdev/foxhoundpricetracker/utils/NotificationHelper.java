@@ -8,9 +8,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Build;
+import android.provider.Settings;
 import android.service.notification.StatusBarNotification;
 import androidx.core.app.NotificationCompat;
+
+import android.view.View;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.jagerdev.foxhoundpricetracker.FloatingCopyService;
 import com.jagerdev.foxhoundpricetracker.MainActivity;
@@ -86,15 +90,23 @@ public class NotificationHelper
               PendingIntent goToApplicationPendingIntent = PendingIntent.getActivity(context, serviceNotificationRequestCode, resultIntent,
                       PendingIntent.FLAG_UPDATE_CURRENT);
 
-              // TODO handle overlay permission depending on Android version!
-              Intent copyServiceIntent = new Intent(context, FloatingCopyService.class);
-              PendingIntent copyNewProductPendingIntent = PendingIntent.getService(context, serviceNotificationRequestCode, copyServiceIntent,
-                      PendingIntent.FLAG_UPDATE_CURRENT);
-
               RemoteViews notificationView = new RemoteViews(context.getPackageName(), R.layout.pricetracker_notification);
+
+              if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Settings.canDrawOverlays(context))
+              {
+                     Intent copyServiceIntent = new Intent(context, FloatingCopyService.class);
+                     PendingIntent copyNewProductPendingIntent = PendingIntent.getService(context, serviceNotificationRequestCode, copyServiceIntent,
+                             PendingIntent.FLAG_UPDATE_CURRENT);
+                     notificationView.setOnClickPendingIntent(R.id.btn_copy_new_product, copyNewProductPendingIntent);
+              }
+              else
+              {
+                     notificationView.setViewVisibility(R.id.btn_copy_new_product, View.GONE);
+              }
+
+
               notificationView.setOnClickPendingIntent(R.id.panel_notification, goToApplicationPendingIntent);
               notificationView.setOnClickPendingIntent(R.id.btn_go_to_application, goToApplicationPendingIntent);
-              notificationView.setOnClickPendingIntent(R.id.btn_copy_new_product, copyNewProductPendingIntent);
 
               NotificationCompat.Builder notifBuilder = new NotificationCompat.Builder(ctx)
                       .setSmallIcon(R.drawable.foxhound_small)
