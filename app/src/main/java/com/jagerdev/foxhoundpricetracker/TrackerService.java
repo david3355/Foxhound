@@ -117,7 +117,7 @@ public class TrackerService extends Service implements PriceTrackEvent, Runnable
                      String extraNotifInfo = "Price changed";
                      try {
                             double parsedOldPrice = priceParser.getPrice(oldPrice, product.getDecimalSeparator());
-                            double parsedNewPrice = priceParser.getPrice(oldPrice, product.getDecimalSeparator());
+                            double parsedNewPrice = priceParser.getPrice(newPrice, product.getDecimalSeparator());
                             if (parsedNewPrice > parsedOldPrice)
                             {
                                    notifIconRes = R.drawable.up;
