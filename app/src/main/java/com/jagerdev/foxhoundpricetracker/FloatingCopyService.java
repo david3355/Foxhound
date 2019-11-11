@@ -17,9 +17,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jagerdev.foxhoundpricetracker.products.ProductRegisteredEvent;
+import com.jagerdev.foxhoundpricetracker.products.ProductRegisterEvents;
 import com.jagerdev.foxhoundpricetracker.settings.GlobalSettings;
 import com.jagerdev.foxhoundpricetracker.utils.AndroidUtil;
+
+import java.util.List;
 
 import controllers.validators.OnInvalidInput;
 import database.DatabaseException;
@@ -62,7 +64,7 @@ public class FloatingCopyService extends Service implements View.OnClickListener
               }
        };
 
-       private ProductRegisteredEvent productRegisteredHandler = new ProductRegisteredEvent()
+       private ProductRegisterEvents productRegisteredHandler = new ProductRegisterEvents()
        {
               @Override
               public void onRegisteredSuccessfully()
@@ -82,6 +84,11 @@ public class FloatingCopyService extends Service implements View.OnClickListener
                                    floatingmenu_fast_register.setVisibility(View.VISIBLE);
                             }
                      });
+              }
+
+              @Override
+              public void pricePathPossibilitiesReceived(List<String> possiblePaths) {
+
               }
        };
 

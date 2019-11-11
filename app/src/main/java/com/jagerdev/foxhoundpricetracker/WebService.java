@@ -3,6 +3,7 @@ package com.jagerdev.foxhoundpricetracker;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.widget.Toast;
 
 import com.jagerdev.foxhoundpricetracker.webpage.MiniGUIServer;
 import com.jagerdev.foxhoundpricetracker.webpage.MiniRESTServer;
@@ -44,6 +45,7 @@ public class WebService extends Service implements OnInvalidInput
        {
               startGUIServer();
               startRESTServer();
+              Toast.makeText(this, "Webservice started.", Toast.LENGTH_SHORT).show();
               return super.onStartCommand(intent, flags, startId);
        }
 
@@ -57,6 +59,7 @@ public class WebService extends Service implements OnInvalidInput
               } catch (Exception e)
               {
               }
+              Toast.makeText(this, "Webservice stopped.", Toast.LENGTH_SHORT).show();
               super.onDestroy();
        }
 

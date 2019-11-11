@@ -256,31 +256,41 @@ public class MainActivity extends AppCompatActivity
                return AndroidUtil.isServiceRunning(this, TrackerService.class);
        }
 
+       private void displayWebservice()
+       {
+           if (isWebserviceRunning())
+           {
+               String hostAddress = NetworkUtil.getWifiIp(this);
+               if (hostAddress != null )
+               {
+                   txt_webpage_address.setText(String.format("http://%s:%s", hostAddress, WebService.GUI_PORT));
+                   panel_webpage_address.setVisibility(View.VISIBLE);
+               }
+               else
+               {
+                   panel_webpage_address.setVisibility(View.GONE);
+               }
+           }
+           else
+           {
+               panel_webpage_address.setVisibility(View.GONE);
+           }
+       }
+
        private void toggleWebServer()
        {
               if (!isWebserviceRunning())
               {
                   Intent webService = new Intent(this, WebService.class);
                   startService(webService);
-
-                  String hostAddress = NetworkUtil.getWifiIp(this);
-                  if (hostAddress != null )   // TODO check if gui service is running
-                  {
-                      txt_webpage_address.setText(String.format("http://%s:%s", hostAddress, WebService.GUI_PORT));
-                      panel_webpage_address.setVisibility(View.VISIBLE);
-                  }
-                  else
-                  {
-                      panel_webpage_address.setVisibility(View.GONE);
-                  }
                   nav_webpage_service.setTitle(getResources().getString(R.string.stop_webservice));
               }
               else
               {
                   stopService(new Intent(this, WebService.class));
-                  panel_webpage_address.setVisibility(View.GONE);
                   nav_webpage_service.setTitle(getResources().getString(R.string.start_webservice));
               }
+              displayWebservice();
        }
 
        @Override
@@ -301,6 +311,7 @@ public class MainActivity extends AppCompatActivity
                      productAdapter.notifyDataSetChanged();
               }
 
+              displayWebservice();
               nav_webpage_service.setTitle(isWebserviceRunning() ? getResources().getString(R.string.stop_webservice) : getResources().getString(R.string.start_webservice));
               nav_pricetracker_service.setTitle(isTrackerServiceRunning() ? getResources().getString(R.string.stop_pricetracker_service) : getResources().getString(R.string.start_pricetracker_service));
               super.onResume();

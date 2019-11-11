@@ -10,6 +10,8 @@ import android.os.Looper;
 import android.provider.Settings;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,13 +20,17 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jagerdev.foxhoundpricetracker.products.Frequency;
-import com.jagerdev.foxhoundpricetracker.products.ProductRegisteredEvent;
+import com.jagerdev.foxhoundpricetracker.products.ProductRegisterEvents;
 import com.jagerdev.foxhoundpricetracker.utils.ServiceRunHandler;
+
+import java.util.List;
 
 import controllers.exceptions.ImproperPathSelectorException;
 import controllers.exceptions.InternetConnectionException;
@@ -36,7 +42,7 @@ import tracker.PriceTrackerManager;
 
 import static com.jagerdev.foxhoundpricetracker.utils.Common.updateTextValue;
 
-public class NewProductActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, ProductRegisteredEvent
+public class NewProductActivity extends AppCompatActivity implements View.OnClickListener, OnInvalidInput, ProductRegisterEvents
 {
        private ServiceRunHandler svcRunHandler;
        private PriceTrackerManager priceTrackerManager;
@@ -47,8 +53,9 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
        private Spinner new_product_inspect_unit;
        private ProgressBar progress_new_product;
        private ImageButton btn_time_plus, btn_time_minus;
-       private Button btn_track_product;
+       private Button btn_track_product, btn_get_possible_paths;
        private CheckBox check_do_not_check_product;
+       private LinearLayout panel_price_path_possibilities;
 
        public final static String COPY_NAME = "copy_name";
        public final static String COPY_URL = "copy_url";
@@ -77,6 +84,8 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               btn_time_plus = findViewById(R.id.btn_time_plus);
               btn_time_minus = findViewById(R.id.btn_time_minus);
               check_do_not_check_product = findViewById(R.id.check_do_not_check_product_on_reg);
+              panel_price_path_possibilities = findViewById(R.id.panel_price_path_possibilities);
+              btn_get_possible_paths = findViewById(R.id.btn_get_possible_paths);
 
               btn_time_plus.setOnClickListener(this);
               btn_time_minus.setOnClickListener(this);
@@ -102,6 +111,7 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               }
 
               btn_track_product.setOnClickListener(this);
+              btn_get_possible_paths.setOnClickListener(this);
        }
 
        @Override
@@ -125,6 +135,9 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
               {
                      case R.id.btn_track_product:
                             trackNewItem();
+                            break;
+                     case R.id.btn_get_possible_paths:
+                            getPossiblePaths();
                             break;
                      case R.id.btn_time_plus:
                             updateTextValue(true, new_product_inspect_freq);
@@ -215,11 +228,25 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
 
               progress_new_product.setVisibility(View.VISIBLE);
               btn_track_product.setEnabled(false);
+              btn_get_possible_paths.setEnabled(false);
               trackNewProduct(priceTrackerManager, this, productName, productWebPath, productPrice, productInspectFreq, productIFUnit, this, doNotTrackPrice);
        }
 
+       private void getPossiblePaths()
+       {
+              panel_price_path_possibilities.removeAllViews();
+
+              final String productWebPath = new_product_path.getText().toString();
+              final String productPrice = new_product_price.getText().toString();
+
+              progress_new_product.setVisibility(View.VISIBLE);
+              btn_track_product.setEnabled(false);
+              btn_get_possible_paths.setEnabled(false);
+              getPricePathPossibilities(priceTrackerManager, this, productWebPath, productPrice, this);
+       }
+
        public static void trackNewProduct(final PriceTrackerManager priceTrackerManager, final Context context, final String productName, final String productWebPath,
-                                          final String productPrice, final String productInspectFreq, final String productIFUnit, final ProductRegisteredEvent eventHandler, final boolean doNotTrackPrice)
+                                          final String productPrice, final String productInspectFreq, final String productIFUnit, final ProductRegisterEvents eventHandler, final boolean doNotTrackPrice)
        {
               Thread t = new Thread(new Runnable()
               {
@@ -246,6 +273,37 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                             {
                                    showInfo(context, e.getMessage());
                             } catch (DatabaseException e)
+                            {
+                                   showInfo(context, e.getMessage());
+                            } finally
+                            {
+                                   eventHandler.onFinally();
+                            }
+                     }
+              });
+              t.start();
+       }
+
+       public static void getPricePathPossibilities(final PriceTrackerManager priceTrackerManager, final Context context, final String productWebPath,
+                                          final String productPrice, final ProductRegisterEvents eventHandler)
+       {
+              Thread t = new Thread(new Runnable()
+              {
+                     @Override
+                     public void run()
+                     {
+                            try
+                            {
+                                   List<String> paths = priceTrackerManager.getPricePathPossibilities(productPrice, productWebPath);
+                                   eventHandler.pricePathPossibilitiesReceived(paths);
+                            }
+                            catch (InternetConnectionException ie) {
+                                   showInfo(context, ie.getMessage());
+                                   ie.printStackTrace();
+                            }catch (SourcePageNotAvailableException e)
+                            {
+                                   showInfo(context, e.getMessage());
+                            } catch (PathForProductNotFoundException e)
                             {
                                    showInfo(context, e.getMessage());
                             } finally
@@ -296,6 +354,25 @@ public class NewProductActivity extends AppCompatActivity implements View.OnClic
                      {
                             progress_new_product.setVisibility(View.GONE);
                             btn_track_product.setEnabled(true);
+                            btn_get_possible_paths.setEnabled(true);
+                     }
+              });
+       }
+
+       @Override
+       public void pricePathPossibilitiesReceived(final List<String> possiblePaths) {
+              runOnUiThread(new Runnable()
+              {
+                     @Override
+                     public void run()
+                     {
+                            for (String path : possiblePaths) {
+                                   LayoutInflater inflater = LayoutInflater.from(NewProductActivity.this);
+                                   View panel = inflater.inflate(R.layout.possible_path, panel_price_path_possibilities, false);
+                                   TextView text = panel.findViewById(R.id.txt_possible_path);
+                                   text.setText(path);
+                                   panel_price_path_possibilities.addView(panel);
+                            }
                      }
               });
        }

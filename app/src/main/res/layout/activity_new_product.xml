@@ -170,6 +170,42 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"
+                android:background="@color/colorSpringGreen"
+                android:divider="?android:dividerHorizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:showDividers="middle"/>
+
+            <Button
+                android:id="@+id/btn_get_possible_paths"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:padding="5dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"
+                android:background="@drawable/button_default"
+                android:fontFamily="sans-serif-smallcaps"
+                android:scaleType="fitCenter"
+                android:text="Get possible HTML paths"
+                android:textAllCaps="false"
+                />
+
+            <LinearLayout
+                android:id="@+id/panel_price_path_possibilities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bordered_background">
+
+            </LinearLayout>
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
